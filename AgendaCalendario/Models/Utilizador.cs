@@ -8,9 +8,11 @@ public class Utilizador
 
     [Required]
     [EmailAddress]
+    [MaxLength(150)]
     public string Email { get; set; }
 
     [Required]
+    [MaxLength(200)]
     public string PasswordHash { get; set; }
 
     // Relação: 1 Utilizador tem muitas Tarefas

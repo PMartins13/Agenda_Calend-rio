@@ -1,15 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using AgendaCalendario.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ⚙️ Liga o DbContext à connection string definida no appsettings.json
+builder.Services.AddDbContext<AgendaDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Adiciona os controladores com views (MVC)
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configuração do pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

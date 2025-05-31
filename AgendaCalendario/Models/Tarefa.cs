@@ -7,8 +7,10 @@ public class Tarefa
     public int Id { get; set; }
 
     [Required]
+    [MaxLength(50)]
     public string Titulo { get; set; }
 
+    [MaxLength(500)]
     public string Descricao { get; set; }
 
     [Required]

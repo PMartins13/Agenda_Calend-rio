@@ -7,9 +7,11 @@ public class Categoria
     public int Id { get; set; }
 
     [Required]
+    [MaxLength(50)]
     public string Nome { get; set; }
 
     // Cor visual associada à categoria
+    [MaxLength(100)]
     public string Cor { get; set; }
 
     // FK para o utilizador
