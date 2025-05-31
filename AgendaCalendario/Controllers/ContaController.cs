@@ -92,6 +92,12 @@ namespace AgendaCalendario.Controllers
             HttpContext.Session.SetInt32("UtilizadorId", utilizador.Id);
             return RedirectToAction("Index", "Home");
         }
+        
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // limpa a sessão atual
+            return RedirectToAction("Index", "Home");
+        }
 
         // Função auxiliar para encriptar password
         private string ObterHash(string input)
