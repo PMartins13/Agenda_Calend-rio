@@ -9,6 +9,7 @@ builder.Services.AddDbContext<AgendaDbContext>(options =>
 
 // Adiciona os controladores com views (MVC)
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -23,6 +24,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 
 app.UseAuthorization();
 
