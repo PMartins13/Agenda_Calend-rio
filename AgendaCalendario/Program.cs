@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AgendaDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adiciona os controladores com views (MVC)
+// Adiciona os controladores com views (MVC).
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
