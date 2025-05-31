@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgendaCalendario", "AgendaCalendario\AgendaCalendario.csproj", "{046E92E9-BB8C-4773-A32A-9C92E5F3B289}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{046E92E9-BB8C-4773-A32A-9C92E5F3B289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{046E92E9-BB8C-4773-A32A-9C92E5F3B289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{046E92E9-BB8C-4773-A32A-9C92E5F3B289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{046E92E9-BB8C-4773-A32A-9C92E5F3B289}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
