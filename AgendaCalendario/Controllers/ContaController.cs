@@ -93,9 +93,10 @@ namespace AgendaCalendario.Controllers
             }
 
             // Login com sucesso
+            HttpContext.Session.SetString("UtilizadorNome", utilizador.Nome);
             HttpContext.Session.SetInt32("UtilizadorId", utilizador.Id);
             HttpContext.Session.SetString("UtilizadorEmail", utilizador.Email);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Calendario");
             
         }
         

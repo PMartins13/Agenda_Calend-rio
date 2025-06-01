@@ -47,16 +47,25 @@
 
                     @if (userEmail != null)
                     {
+                         
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Calendario" asp-action="Index">
+                                <i class="bi bi-calendar-event"></i> Calendário
+                            </a>
+                        </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link text-success fw-semibold" asp-controller="Conta" asp-action="Perfil">
                                 Bem-vindo, @userNome
                             </a>
                         </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link text-danger" asp-controller="Conta" asp-action="Logout">
                                 <i class="bi bi-box-arrow-right"></i> Sair
                             </a>
                         </li>
+                       
                     }
                     else
                     {
