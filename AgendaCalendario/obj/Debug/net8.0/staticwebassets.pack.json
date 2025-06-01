@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\images\\mockup.png",
+      "PackagePath": "staticwebassets\\images\\mockup.png"
+    },
+    {
       "Id": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },
