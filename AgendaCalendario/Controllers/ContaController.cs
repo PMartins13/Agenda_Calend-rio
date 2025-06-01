@@ -25,7 +25,7 @@ namespace AgendaCalendario.Controllers
         // POST: Conta/Registar
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Registar(string email, string password)
+        public async Task<IActionResult> Registar(string nome, string email, string password)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
@@ -43,15 +43,19 @@ namespace AgendaCalendario.Controllers
 
             var novo = new Utilizador
             {
+                Nome = nome,
                 Email = email,
                 PasswordHash = hash
             };
 
             _context.Utilizadores.Add(novo);
             await _context.SaveChangesAsync();
-
+            
+            HttpContext.Session.SetString("UtilizadorNome", novo.Nome);
             HttpContext.Session.SetInt32("UtilizadorId", novo.Id);
-            return RedirectToAction("Index", "Home"); // podes mudar para "Calendario" quando existir
+            HttpContext.Session.SetString("UtilizadorEmail", novo.Email);
+            return RedirectToAction("Index", "Home");
+            
         }
 
         // GET: Conta/Login
@@ -90,7 +94,9 @@ namespace AgendaCalendario.Controllers
 
             // Login com sucesso
             HttpContext.Session.SetInt32("UtilizadorId", utilizador.Id);
+            HttpContext.Session.SetString("UtilizadorEmail", utilizador.Email);
             return RedirectToAction("Index", "Home");
+            
         }
         
         public IActionResult Logout()
@@ -98,7 +104,17 @@ namespace AgendaCalendario.Controllers
             HttpContext.Session.Clear(); // limpa a sessão atual
             return RedirectToAction("Index", "Home");
         }
+        
+        public IActionResult Perfil()
+        {
+            if (HttpContext.Session.GetInt32("UtilizadorId") == null)
+            {
+                return RedirectToAction("Login", "Conta");
+            }
 
+            return View();
+        }
+        
         // Função auxiliar para encriptar password
         private string ObterHash(string input)
         {

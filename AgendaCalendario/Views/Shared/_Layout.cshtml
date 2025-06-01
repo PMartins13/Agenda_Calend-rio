@@ -1,5 +1,12 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+<style>
+    .nav-link:hover {
+        background-color: #f0f8ff;
+        border-radius: 6px;
+        transition: background-color 0.3s ease;
+    }
+</style>
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -15,7 +22,7 @@
     <nav class="navbar navbar-expand-lg navbar-light" style="background: linear-gradient(to right, #e3f2fd, #ffffff); box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
         <div class="container-fluid px-4">
             <a class="navbar-brand d-flex align-items-center fw-bold text-primary fs-4" asp-controller="Home" asp-action="Index">
-             <i class="bi bi-calendar-check-fill me-2"></i> Agenda Calendário
+                <i class="bi bi-calendar-check-fill me-2"></i> Agenda Calendário
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,8 +31,10 @@
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 @{
-                   var userId = Context.Session.GetInt32("UtilizadorId");
-                   
+                    
+                    var userNome = Context.Session.GetString("UtilizadorNome");
+                    var userEmail = Context.Session.GetString("UtilizadorEmail");
+
                 }
 
                 <ul class="navbar-nav">
@@ -36,10 +45,12 @@
                         <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacidade</a>
                     </li>
 
-                    @if (userId != null)
+                    @if (userEmail != null)
                     {
                         <li class="nav-item">
-                            <span class="nav-link text-success fw-semibold">Bem-vindo, utilizador @userId</span>
+                            <a class="nav-link text-success fw-semibold" asp-controller="Conta" asp-action="Perfil">
+                                Bem-vindo, @userNome
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-danger" asp-controller="Conta" asp-action="Logout">
@@ -55,7 +66,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Conta" asp-action="Registar">
+                            <a class="nav-link btn btn-success text-white ms-2" asp-controller="Conta" asp-action="Registar">
                                 <i class="bi bi-person-plus"></i> Criar Conta
                             </a>
                         </li>
