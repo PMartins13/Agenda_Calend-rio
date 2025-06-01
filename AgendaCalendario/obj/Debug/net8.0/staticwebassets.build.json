@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "kiikNS4NbTXjtm8gsVOkdKsjBjlXx5n63CLjgVp/M4w=",
+  "Hash": "N1p1sA/MevguOuuOVhjkOHgmfbdf8RYDB5Dp+UJJbV0=",
   "Source": "AgendaCalendario",
   "BasePath": "_content/AgendaCalendario",
   "Mode": "Default",
@@ -91,6 +91,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\images\\mockup.png",
+      "SourceId": "AgendaCalendario",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\",
+      "BasePath": "_content/AgendaCalendario",
+      "RelativePath": "images/mockup.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\mockup.png"
     },
     {
       "Identity": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\js\\site.js",

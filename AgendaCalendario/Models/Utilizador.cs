@@ -5,6 +5,10 @@ namespace AgendaCalendario.Models;
 public class Utilizador
 {
     public int Id { get; set; }
+    
+    [Required]
+    [MaxLength(100)]
+    public string Nome { get; set; }
 
     [Required]
     [EmailAddress]
