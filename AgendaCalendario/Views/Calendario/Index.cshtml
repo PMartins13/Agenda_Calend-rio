@@ -2,5 +2,35 @@
     ViewData["Title"] = "Calendário";
 }
 
-<h2>O Meu Calendário</h2>
-<p>Aqui irá aparecer o calendário com as tuas tarefas.</p>
+<div class="container py-4">
+    <h2 class="text-center mb-4">O Meu Calendário</h2>
+
+    <div id="calendar"></div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'pt',
+                timeZone: 'local',
+                firstDay: 0, // 0 = Domingo
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                },
+                selectable: true,
+                dateClick: function (info) {
+                    alert('Dia selecionado: ' + info.dateStr);
+                },
+                events: []
+            });
+
+            calendar.render();
+        });
+    </script>
+}
