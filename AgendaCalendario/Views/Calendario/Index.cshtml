@@ -2,35 +2,60 @@
     ViewData["Title"] = "Calendário";
 }
 
-<div class="container py-4">
-    <h2 class="text-center mb-4">O Meu Calendário</h2>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Calendário -->
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">O Meu Calendário</h2>
+            <div id="calendar"></div>
+        </div>
 
-    <div id="calendar"></div>
+        <!-- Painel de tarefas -->
+        <div class="col-md-6">
+            <h4 class="mb-3">Tarefas</h4>
+            <button class="btn btn-primary mb-3" id="btnAdicionarTarefa">Adicionar +</button>
+            
+            <!-- Modal de Adicionar Tarefa -->
+            <div class="modal fade" id="modalTarefa" tabindex="-1" aria-labelledby="modalTarefaLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form id="formTarefa">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalTarefaLabel">Adicionar Tarefa</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label">Título *</label>
+                                    <input type="text" class="form-control" id="titulo" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="descricao" class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="descricao" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="data" class="form-label">Data *</label>
+                                    <input type="date" class="form-control" id="data" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Criar +</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="painelTarefas">
+                <!-- Tarefas de um dia específico vão aparecer aqui -->
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var calendarEl = document.getElementById('calendar');
-
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                locale: 'pt',
-                timeZone: 'local',
-                firstDay: 0, // 0 = Domingo
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: ''
-                },
-                selectable: true,
-                dateClick: function (info) {
-                    alert('Dia selecionado: ' + info.dateStr);
-                },
-                events: []
-            });
-
-            calendar.render();
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="~/js/tarefas.js"></script>
 }
+
+

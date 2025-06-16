@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "N1p1sA/MevguOuuOVhjkOHgmfbdf8RYDB5Dp+UJJbV0=",
+  "Hash": "0sMzXFQa2NqEd+kKEUr6OhK9jj4mTUCbl/nSvAM/ZCw=",
   "Source": "AgendaCalendario",
   "BasePath": "_content/AgendaCalendario",
   "Mode": "Default",
@@ -129,6 +129,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\js\\site.js"
+    },
+    {
+      "Identity": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\js\\tarefas.js",
+      "SourceId": "AgendaCalendario",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\",
+      "BasePath": "_content/AgendaCalendario",
+      "RelativePath": "js/tarefas.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\tarefas.js"
     },
     {
       "Identity": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap-grid.css",
