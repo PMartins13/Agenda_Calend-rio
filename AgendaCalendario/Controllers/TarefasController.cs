@@ -56,5 +56,62 @@ public class TarefasController : Controller
         await _context.SaveChangesAsync();
         return Ok();
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> Detalhes(int id)
+    {
+        var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+        if (utilizadorId == null) return Unauthorized();
+
+        var tarefa = await _context.Tarefas
+            .FirstOrDefaultAsync(t => t.Id == id && t.UtilizadorId == utilizadorId);
+
+        if (tarefa == null) return NotFound();
+
+        return Json(new
+        {
+            id = tarefa.Id,
+            titulo = tarefa.Titulo,
+            descricao = tarefa.Descricao,
+            data = tarefa.Data.ToString("yyyy-MM-dd"),
+            categoriaId = tarefa.CategoriaId
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Editar([FromBody] Tarefa tarefa)
+    {
+        var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+        if (utilizadorId == null) return Unauthorized();
+
+        var original = await _context.Tarefas.FindAsync(tarefa.Id);
+        if (original == null || original.UtilizadorId != utilizadorId) return NotFound();
+
+        if (string.IsNullOrEmpty(tarefa.Titulo) || tarefa.Data == default)
+            return BadRequest("Campos obrigatórios em falta.");
+
+        original.Titulo = tarefa.Titulo;
+        original.Descricao = tarefa.Descricao;
+        original.Data = tarefa.Data;
+        original.CategoriaId = tarefa.CategoriaId;
+
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Apagar([FromBody] int id)
+    {
+        var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+        if (utilizadorId == null) return Unauthorized();
+
+        var tarefa = await _context.Tarefas.FindAsync(id);
+        if (tarefa == null || tarefa.UtilizadorId != utilizadorId) return NotFound();
+
+        _context.Tarefas.Remove(tarefa);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
 
 }

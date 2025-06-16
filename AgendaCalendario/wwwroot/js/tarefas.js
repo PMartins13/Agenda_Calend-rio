@@ -32,31 +32,29 @@ function mostrarTarefas(tarefas) {
         const bloco = document.createElement('div');
         bloco.className = 'mb-3 p-2 border rounded';
         bloco.style.borderLeft = `8px solid ${cor}`;
-        bloco.style.backgroundColor = cor + '10'; // cor com transparência leve
-        bloco.style.transition = 'all 0.3s ease';
+        bloco.style.backgroundColor = cor + '10';
 
-        bloco.innerHTML = `
-            <h5 style="color:${cor};">${categoria}</h5>
-            <ul>
-                ${lista.map(t => `
-                    <li>
-                        <strong>${t.titulo}</strong><br/>
-                        <small>${t.descricao || ''}</small>
-                    </li>
-                `).join('')}
-            </ul>
-        `;
+        const ul = document.createElement('ul');
 
+        lista.forEach(t => {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${t.titulo}</strong><br/><small>${t.descricao || ''}</small>`;
+            li.style.cursor = "pointer";
+            li.addEventListener("dblclick", () => abrirModalEditar(t.id));
+            ul.appendChild(li);
+        });
+
+        bloco.innerHTML = `<h5 style="color:${cor};">${categoria}</h5>`;
+        bloco.appendChild(ul);
         painel.appendChild(bloco);
     }
 }
 
-
-function carregarCategoriasDropdown() {
+function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
     fetch("/Categorias/Minhas")
         .then(res => res.json())
         .then(categorias => {
-            const select = document.getElementById("categoriaId");
+            const select = document.getElementById(targetSelectId);
             select.innerHTML = '<option value="">(Sem categoria)</option>';
 
             categorias.forEach(cat => {
@@ -68,6 +66,72 @@ function carregarCategoriasDropdown() {
         });
 }
 
+function abrirModalEditar(tarefaId) {
+    fetch(`/Tarefas/Detalhes?id=${tarefaId}`)
+        .then(res => res.json())
+        .then(tarefa => {
+            document.getElementById("editId").value = tarefa.id;
+            document.getElementById("editTitulo").value = tarefa.titulo;
+            document.getElementById("editDescricao").value = tarefa.descricao;
+            document.getElementById("editData").value = tarefa.data.split("T")[0];
+            carregarCategoriasDropdown("editCategoriaId");
+
+            setTimeout(() => {
+                document.getElementById("editCategoriaId").value = tarefa.categoriaId ?? "";
+            }, 200);
+
+            const modal = new bootstrap.Modal(document.getElementById("modalEditarTarefa"));
+            modal.show();
+        });
+}
+
+// Guardar edição
+document.getElementById("formEditarTarefa").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const tarefa = {
+        id: document.getElementById("editId").value,
+        titulo: document.getElementById("editTitulo").value,
+        descricao: document.getElementById("editDescricao").value,
+        data: document.getElementById("editData").value,
+        categoriaId: document.getElementById("editCategoriaId").value || null
+    };
+
+    fetch("/Tarefas/Editar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tarefa)
+    }).then(res => {
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+            carregarTarefas(dataSelecionada);
+        } else {
+            alert("Erro ao editar tarefa.");
+        }
+    });
+});
+
+// Apagar tarefa
+document.getElementById("btnApagarTarefa").addEventListener("click", () => {
+    const id = document.getElementById("editId").value;
+
+    if (!confirm("Tens a certeza que queres eliminar esta tarefa?")) return;
+
+    fetch("/Tarefas/Apagar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(id)
+    }).then(res => {
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+            carregarTarefas(dataSelecionada);
+        } else {
+            alert("Erro ao apagar tarefa.");
+        }
+    });
+});
+
+// Resto dos eventos
 document.addEventListener('DOMContentLoaded', function () {
     carregarTarefas(dataSelecionada);
 
@@ -153,7 +217,3 @@ document.getElementById("formCategoria").addEventListener("submit", function (e)
         }
     });
 });
-
-
-
-
