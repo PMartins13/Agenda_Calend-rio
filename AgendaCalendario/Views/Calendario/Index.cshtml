@@ -15,7 +15,11 @@
             <h4 class="mb-3">Tarefas</h4>
             <button class="btn btn-primary mb-3" id="btnAdicionarTarefa">Adicionar +</button>
             <button class="btn btn-outline-secondary mb-3" id="btnCriarCategoria">Criar Categoria +</button>
-
+            
+            <ul id="listaCategorias" class="list-group mb-4">
+                <!-- O JavaScript vai preencher esta lista -->
+            </ul>
+            
             <!-- Modal de Adicionar Tarefa -->
             <div class="modal fade" id="modalTarefa" tabindex="-1" aria-labelledby="modalTarefaLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -118,6 +122,36 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Modal de Editar Categoria -->
+            <div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form id="formEditarCategoria">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalEditarCategoriaLabel">Editar Categoria</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="modalEditCategoriaId">
+                                <div class="mb-3">
+                                    <label for="modalEditCategoriaNome" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="modalEditCategoriaNome" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="modalEditCategoriaCor" class="form-label">Cor</label>
+                                    <input type="color" class="form-control form-control-color" id="modalEditCategoriaCor" value="#007bff" title="Escolher cor">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
 
             <div id="painelTarefas">
                 <!-- Tarefas de um dia específico vão aparecer aqui -->

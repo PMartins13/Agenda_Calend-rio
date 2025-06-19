@@ -66,6 +66,33 @@ function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
         });
 }
 
+function carregarCategoriasLista() {
+    fetch("/Categorias/Minhas")
+        .then(res => res.json())
+        .then(categorias => {
+            const lista = document.getElementById("listaCategorias");
+            if (!lista) return;
+
+            lista.innerHTML = "";
+            categorias.forEach(cat => {
+                const item = document.createElement("li");
+                item.className = "list-group-item d-flex justify-content-between align-items-center";
+                item.innerHTML = `
+                    <span>
+                        <span class="badge rounded-pill me-2" style="background-color: ${cat.cor};">&nbsp;</span>
+                        ${cat.nome}
+                    </span>
+                    <span>
+                        <button class="btn btn-sm btn-outline-primary me-2 btnEditarCategoria"
+                            data-id="${cat.id}" data-nome="${cat.nome}" data-cor="${cat.cor}">✏️</button>
+                        <button class="btn btn-sm btn-outline-danger btnApagarCategoria"
+                            data-id="${cat.id}">🗑️</button>
+                    </span>`;
+                lista.appendChild(item);
+            });
+        });
+}
+
 function abrirModalEditar(tarefaId) {
     fetch(`/Tarefas/Detalhes?id=${tarefaId}`)
         .then(res => res.json())
@@ -85,55 +112,9 @@ function abrirModalEditar(tarefaId) {
         });
 }
 
-// Guardar edição
-document.getElementById("formEditarTarefa").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const tarefa = {
-        id: document.getElementById("editId").value,
-        titulo: document.getElementById("editTitulo").value,
-        descricao: document.getElementById("editDescricao").value,
-        data: document.getElementById("editData").value,
-        categoriaId: document.getElementById("editCategoriaId").value || null
-    };
-
-    fetch("/Tarefas/Editar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tarefa)
-    }).then(res => {
-        if (res.ok) {
-            bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
-            carregarTarefas(dataSelecionada);
-        } else {
-            alert("Erro ao editar tarefa.");
-        }
-    });
-});
-
-// Apagar tarefa
-document.getElementById("btnApagarTarefa").addEventListener("click", () => {
-    const id = document.getElementById("editId").value;
-
-    if (!confirm("Tens a certeza que queres eliminar esta tarefa?")) return;
-
-    fetch("/Tarefas/Apagar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(id)
-    }).then(res => {
-        if (res.ok) {
-            bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
-            carregarTarefas(dataSelecionada);
-        } else {
-            alert("Erro ao apagar tarefa.");
-        }
-    });
-});
-
-// Resto dos eventos
 document.addEventListener('DOMContentLoaded', function () {
     carregarTarefas(dataSelecionada);
+    carregarCategoriasLista();
 
     const calendarEl = document.getElementById('calendar');
     const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -153,67 +134,166 @@ document.addEventListener('DOMContentLoaded', function () {
             info.dayEl.classList.add('selected-day');
         }
     });
-
     calendar.render();
-});
 
-document.getElementById("btnAdicionarTarefa").addEventListener("click", () => {
-    document.getElementById("formTarefa").reset();
-    document.getElementById("data").value = dataSelecionada;
-    carregarCategoriasDropdown();
-    const modal = new bootstrap.Modal(document.getElementById("modalTarefa"));
-    modal.show();
-});
+    document.getElementById("btnAdicionarTarefa").addEventListener("click", () => {
+        document.getElementById("formTarefa").reset();
+        document.getElementById("data").value = dataSelecionada;
+        carregarCategoriasDropdown();
+        const modal = new bootstrap.Modal(document.getElementById("modalTarefa"));
+        modal.show();
+    });
 
-document.getElementById("formTarefa").addEventListener("submit", function (e) {
-    e.preventDefault();
+    document.getElementById("formTarefa").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-    const tarefa = {
-        titulo: document.getElementById("titulo").value,
-        descricao: document.getElementById("descricao").value,
-        data: document.getElementById("data").value,
-        categoriaId: document.getElementById("categoriaId").value || null
-    };
+        const tarefa = {
+            titulo: document.getElementById("titulo").value,
+            descricao: document.getElementById("descricao").value,
+            data: document.getElementById("data").value,
+            categoriaId: document.getElementById("categoriaId").value || null
+        };
 
-    fetch("/Tarefas/Criar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tarefa)
-    }).then(res => {
-        if (res.ok) {
-            bootstrap.Modal.getInstance(document.getElementById("modalTarefa")).hide();
-            carregarTarefas(dataSelecionada);
-        } else {
-            alert("Erro ao criar tarefa");
+        fetch("/Tarefas/Criar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tarefa)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalTarefa")).hide();
+                carregarTarefas(dataSelecionada);
+            } else {
+                alert("Erro ao criar tarefa");
+            }
+        });
+    });
+
+    document.getElementById("btnCriarCategoria").addEventListener("click", () => {
+        document.getElementById("formCategoria").reset();
+        const modal = new bootstrap.Modal(document.getElementById("modalCategoria"));
+        modal.show();
+    });
+
+    document.getElementById("formCategoria").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const novaCategoria = {
+            nome: document.getElementById("categoriaNome").value,
+            cor: document.getElementById("categoriaCor").value
+        };
+
+        fetch("/Categorias/Criar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(novaCategoria)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
+                alert("Categoria criada com sucesso!");
+                carregarCategoriasDropdown();
+                carregarCategoriasLista();
+            } else {
+                alert("Erro ao criar categoria.");
+            }
+        });
+    });
+
+    document.getElementById("formEditarTarefa").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const tarefa = {
+            id: document.getElementById("editId").value,
+            titulo: document.getElementById("editTitulo").value,
+            descricao: document.getElementById("editDescricao").value,
+            data: document.getElementById("editData").value,
+            categoriaId: document.getElementById("editCategoriaId").value || null
+        };
+
+        fetch("/Tarefas/Editar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tarefa)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                carregarTarefas(dataSelecionada);
+            } else {
+                alert("Erro ao editar tarefa.");
+            }
+        });
+    });
+
+    document.getElementById("btnApagarTarefa").addEventListener("click", () => {
+        const id = document.getElementById("editId").value;
+
+        if (!confirm("Tens a certeza que queres eliminar esta tarefa?")) return;
+
+        fetch("/Tarefas/Apagar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(id)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                carregarTarefas(dataSelecionada);
+            } else {
+                alert("Erro ao apagar tarefa.");
+            }
+        });
+    });
+
+    document.getElementById("formEditarCategoria").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const categoriaEditada = {
+            id: document.getElementById("modalEditCategoriaId").value,
+            nome: document.getElementById("modalEditCategoriaNome").value,
+            cor: document.getElementById("modalEditCategoriaCor").value
+        };
+
+        fetch("/Categorias/Editar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(categoriaEditada)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalEditarCategoria")).hide();
+                carregarCategoriasLista();
+                carregarCategoriasDropdown();
+            } else {
+                alert("Erro ao editar categoria.");
+            }
+        });
+    });
+
+    document.getElementById("listaCategorias")?.addEventListener("click", function (e) {
+        const target = e.target;
+
+        if (target.classList.contains("btnEditarCategoria")) {
+            document.getElementById("modalEditCategoriaId").value = target.dataset.id;
+            document.getElementById("modalEditCategoriaNome").value = target.dataset.nome;
+            document.getElementById("modalEditCategoriaCor").value = target.dataset.cor;
+            const modal = new bootstrap.Modal(document.getElementById("modalEditarCategoria"));
+            modal.show();
+        }
+
+        if (target.classList.contains("btnApagarCategoria")) {
+            const id = target.dataset.id;
+
+            if (confirm("Tens a certeza que queres eliminar esta categoria?")) {
+                fetch("/Categorias/Eliminar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(id)
+                }).then(res => {
+                    if (res.ok) {
+                        carregarCategoriasLista();
+                        carregarCategoriasDropdown();
+                    } else {
+                        alert("Erro ao apagar categoria.");
+                    }
+                });
+            }
         }
     });
-});
-
-document.getElementById("btnCriarCategoria").addEventListener("click", () => {
-    document.getElementById("formCategoria").reset();
-    const modal = new bootstrap.Modal(document.getElementById("modalCategoria"));
-    modal.show();
-});
-
-document.getElementById("formCategoria").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const novaCategoria = {
-        nome: document.getElementById("categoriaNome").value,
-        cor: document.getElementById("categoriaCor").value
-    };
-
-    fetch("/Categorias/Criar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(novaCategoria)
-    }).then(res => {
-        if (res.ok) {
-            bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
-            alert("Categoria criada com sucesso!");
-            carregarCategoriasDropdown();
-        } else {
-            alert("Erro ao criar categoria.");
-        }
-    });
-});
+})
