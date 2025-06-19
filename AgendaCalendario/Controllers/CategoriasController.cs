@@ -86,15 +86,13 @@ public class CategoriasController : Controller
 
         if (categoria == null) return NotFound();
 
-        // Dissociar todas as tarefas
+        // Dissociar tarefas antes de apagar a categoria
         var tarefas = await _context.Tarefas
             .Where(t => t.CategoriaId == id)
             .ToListAsync();
 
         foreach (var tarefa in tarefas)
-        {
             tarefa.CategoriaId = null;
-        }
 
         _context.Categorias.Remove(categoria);
         await _context.SaveChangesAsync();

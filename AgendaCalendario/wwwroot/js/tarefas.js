@@ -20,13 +20,22 @@ function mostrarTarefas(tarefas) {
     const categorias = {};
 
     tarefas.forEach(tarefa => {
-        const cat = tarefa.categoriaNome || 'Sem categoria';
-        if (!categorias[cat]) categorias[cat] = { cor: tarefa.cor, tarefas: [] };
-        categorias[cat].tarefas.push(tarefa);
+        const catId = tarefa.categoriaId ?? 'null'; // null para "Sem categoria"
+        if (!categorias[catId]) {
+            categorias[catId] = {
+                id: tarefa.categoriaId,
+                nome: tarefa.categoriaNome || 'Sem categoria',
+                cor: tarefa.cor || '#ccc',
+                tarefas: []
+            };
+        }
+        categorias[catId].tarefas.push(tarefa);
     });
 
-    for (const [categoria, info] of Object.entries(categorias)) {
-        const cor = info.cor || '#cccccc';
+    for (const [_, info] of Object.entries(categorias)) {
+        const id = info.id;
+        const nome = info.nome;
+        const cor = info.cor;
         const lista = info.tarefas;
 
         const bloco = document.createElement('div');
@@ -44,11 +53,24 @@ function mostrarTarefas(tarefas) {
             ul.appendChild(li);
         });
 
-        bloco.innerHTML = `<h5 style="color:${cor};">${categoria}</h5>`;
+        bloco.innerHTML = `
+            <h5 class="d-flex justify-content-between align-items-center" style="color:${cor};">
+                ${nome}
+                ${id !== null ? `
+                    <span>
+                        <button class="btn btn-sm btn-outline-primary me-2 btnEditarCategoria"
+                                data-id="${id}" data-nome="${nome}" data-cor="${cor}">✏️</button>
+                        <button class="btn btn-sm btn-outline-danger btnApagarCategoria"
+                                data-id="${id}">🗑️</button>
+                    </span>
+                ` : ''}
+            </h5>
+        `;
         bloco.appendChild(ul);
         painel.appendChild(bloco);
     }
 }
+
 
 function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
     fetch("/Categorias/Minhas")
@@ -266,13 +288,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    document.getElementById("listaCategorias")?.addEventListener("click", function (e) {
+    document.getElementById("painelTarefas")?.addEventListener("click", function (e) {
         const target = e.target;
 
         if (target.classList.contains("btnEditarCategoria")) {
             document.getElementById("modalEditCategoriaId").value = target.dataset.id;
             document.getElementById("modalEditCategoriaNome").value = target.dataset.nome;
             document.getElementById("modalEditCategoriaCor").value = target.dataset.cor;
+
             const modal = new bootstrap.Modal(document.getElementById("modalEditarCategoria"));
             modal.show();
         }
@@ -287,13 +310,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify(id)
                 }).then(res => {
                     if (res.ok) {
-                        carregarCategoriasLista();
-                        carregarCategoriasDropdown();
+                        carregarCategoriasDropdown(); // opcional
+                        carregarTarefas(dataSelecionada); // recarregar vista
                     } else {
-                        alert("Erro ao apagar categoria.");
+                        res.text().then(msg => alert(msg));
                     }
                 });
             }
         }
     });
+
 })

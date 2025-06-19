@@ -28,11 +28,12 @@ public class TarefasController : Controller
         var tarefas = await _context.Tarefas
             .Where(t => t.UtilizadorId == utilizadorId && t.Data.Date == dataSelecionada.Date)
             .Include(t => t.Categoria)
-            .Select(t => new
-            {
+            .Select(t => new {
                 id = t.Id,
                 titulo = t.Titulo,
                 descricao = t.Descricao,
+                data = t.Data,
+                categoriaId = t.CategoriaId,
                 categoriaNome = t.Categoria != null ? t.Categoria.Nome : null,
                 cor = t.Categoria != null ? t.Categoria.Cor : null
             })
