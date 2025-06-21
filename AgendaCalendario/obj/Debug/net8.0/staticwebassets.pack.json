@@ -21,6 +21,10 @@
       "PackagePath": "staticwebassets\\js\\site.js"
     },
     {
+      "Id": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\js\\tarefas.js",
+      "PackagePath": "staticwebassets\\js\\tarefas.js"
+    },
+    {
       "Id": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\wwwroot\\lib\\bootstrap\\LICENSE",
       "PackagePath": "staticwebassets\\lib\\bootstrap"
     },

@@ -12,6 +12,11 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+.fc-daygrid-day.selected-day {
+  background-color: #ffe699 !important;
+  border: 2px solid #d4aa00;
+}
+
 html {
   position: relative;
   min-height: 100%;

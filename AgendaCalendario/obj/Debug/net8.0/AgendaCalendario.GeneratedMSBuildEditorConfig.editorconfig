@@ -26,6 +26,10 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Projetos\AgendaCalendario\AgendaCalendario
 build_property._RazorSourceGeneratorDebug = 
 
+[C:/Projetos/AgendaCalendario/AgendaCalendario/Views/Calendario/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FsZW5kYXJpb1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Projetos/AgendaCalendario/AgendaCalendario/Views/Conta/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29udGFcTG9naW4uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
