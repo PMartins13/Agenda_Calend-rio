@@ -1,6 +1,32 @@
-﻿@{
-    ViewData["Title"] = "O Meu Perfil";
-}
+﻿@model UtilizadorPerfilViewModel
 
 <h2>O Meu Perfil</h2>
-<p>Aqui poderás editar os teus dados futuramente.</p>
+
+<form asp-action="Perfil" method="post">
+    <div class="form-group">
+        <label asp-for="Nome"></label>
+        <input asp-for="Nome" class="form-control" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="NovaPassword">Nova Password</label>
+        <input asp-for="NovaPassword" class="form-control" />
+        <span asp-validation-for="NovaPassword" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ConfirmarPassword">Confirmar Password</label>
+        <input asp-for="ConfirmarPassword" class="form-control" />
+        <span asp-validation-for="ConfirmarPassword" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Guardar</button>
+</form>
+
+@if (ViewBag.Mensagem != null)
+{
+    <div class="alert alert-success mt-3">@ViewBag.Mensagem</div>
+}
