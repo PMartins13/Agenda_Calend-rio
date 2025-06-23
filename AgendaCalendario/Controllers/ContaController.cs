@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AgendaCalendario.Controllers
 {
@@ -38,6 +39,13 @@ namespace AgendaCalendario.Controllers
                 ModelState.AddModelError("", "Este email já está registado.");
                 return View();
             }
+            
+            if (!Regex.IsMatch(password, @"^(?=(?:.*[A-Z]){1,})(?=(?:.*\d){4,})(?=(?:.*[!@#$%^&*()_\-=\[\]{};':""\\|,.<>\/?]){1,}).{8,}$"))
+            {
+                ModelState.AddModelError("", "Password inválida (back-end): requisitos mínimos não cumpridos.");
+                return View();
+            }
+
 
             var hash = ObterHash(password);
 
