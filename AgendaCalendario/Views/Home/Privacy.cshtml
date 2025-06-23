@@ -2,54 +2,106 @@
     ViewData["Title"] = "Sobre o Projeto";
 }
 
+<style>
+    body {
+        background: linear-gradient(to top, #e3f2fd, #ffffff);
+    }
+</style>
+
 <div class="container py-5">
-    <div class="card shadow p-4 mb-4">
-        <h2 class="card-title">Sobre o Projeto</h2>
-        <p><strong>Curso:</strong> Licenciatura em Engenharia Informática</p>
-        <p><strong>Disciplina:</strong> Desenvolvimento Web</p>
-        <p><strong>Ano Letivo:</strong> 2024/2025</p>
+    <div class="card shadow mb-4">
+        <div class="card-body bg-white">
+            <h2><i class="bi bi-journal-code me-2"></i> Sobre o Projeto</h2>
+            <p><strong>Curso:</strong> Licenciatura em Engenharia Informática</p>
+            <p><strong>Disciplina:</strong> Desenvolvimento Web</p>
+            <p><strong>Ano Letivo:</strong> 2024/2025</p>
+        </div>
     </div>
 
-    <div class="card shadow p-4 mb-4">
-        <h4 class="card-title">Autores</h4>
-        <ul>
-            <li><strong>Duarte Rosa Gonçalves</strong> – nº 24846</li>
-            <li><strong>Pedro Martins</strong> – nº 24852</li>
-        </ul>
-    </div>
+    <div class="accordion" id="accordionProjeto">
 
-    <div class="card shadow p-4 mb-4">
-        <h4 class="card-title">Tecnologias e Bibliotecas Usadas</h4>
-        <ul>
-            <li><strong>ASP.NET Core MVC</strong> – estrutura principal da aplicação e das views</li>
-            <li><strong>Entity Framework Core</strong> – acesso à base de dados via ORM</li>
-            <li><strong>SQLite</strong> – motor de base de dados leve e local</li>
-            <li><strong>Bootstrap 5</strong> – para layout responsivo e componentes visuais</li>
-            <li><strong>jQuery + jQuery Validation</strong> – para interações e validações no lado do cliente</li>
-            <li>
-                <strong>FullCalendar</strong> – calendário visual para gestão de tarefas (<a href="https://fullcalendar.io" target="_blank">fullcalendar.io</a>)
-            </li>
-        </ul>
-    </div>
+        <!-- Autores -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAutores">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAutores">
+                    <i class="bi bi-people me-2"></i> Autores
+                </button>
+            </h2>
+            <div id="collapseAutores" class="accordion-collapse collapse show" data-bs-parent="#accordionProjeto">
+                <div class="accordion-body">
+                    <div class="row text-center">
+                        <div class="col-md-6 mb-4">
+                            <img src="~/images/duarte.jpg" class="rounded-circle border border-3 border-dark shadow" alt="Foto de Duarte" style="width: 140px; height: 140px; object-fit: cover;">
+                            <p class="mt-2 mb-0 fw-bold">Duarte Rosa Gonçalves</p>
+                            <p class="text-muted">Nº 24846</p>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <img src="~/images/pedro.png" class="rounded-circle border border-3 border-dark shadow" alt="Foto de Pedro" style="width: 140px; height: 140px; object-fit: cover;">
+                            <p class="mt-2 mb-0 fw-bold">Pedro Martins</p>
+                            <p class="text-muted">Nº 24852</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="card shadow p-4 mb-4">
-        <h4 class="card-title">Recursos de Terceiros e Referências</h4>
-        <ul>
-            <li>
-                <a href="https://icons.getbootstrap.com" target="_blank">Bootstrap Icons</a> – utilizados para ícones no menu, botões e ações visuais
-            </li>
-            <li>
-                <a href="https://jqueryvalidation.org/" target="_blank">jQuery Validation</a> – usado na validação dos formulários do utilizador
-            </li>
-            <li>Documentação oficial da Microsoft ASP.NET e Bootstrap para orientação em práticas padrão</li>
-        </ul>
-    </div>
+        <!-- Tecnologias -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTecnologias">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTecnologias">
+                    <i class="bi bi-tools me-2"></i> Tecnologias e Bibliotecas Usadas
+                </button>
+            </h2>
+            <div id="collapseTecnologias" class="accordion-collapse collapse" data-bs-parent="#accordionProjeto">
+                <div class="accordion-body">
+                    <ul>
+                        <li><strong>ASP.NET Core MVC</strong> – estrutura base da aplicação e views</li>
+                        <li><strong>Entity Framework Core</strong> – comunicação com a base de dados via ORM</li>
+                        <li><strong>SQLite</strong> – base de dados leve usada em desenvolvimento local</li>
+                        <li><strong>Bootstrap 5</strong> – estilo visual e responsividade</li>
+                        <li><strong>jQuery + jQuery Validation</strong> – interações e validações de formulários</li>
+                        <li><strong>FullCalendar</strong> – calendário visual (<a href="https://fullcalendar.io" target="_blank">fullcalendar.io</a>)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
-    <div class="card shadow p-4 mb-4">
-        <h4 class="card-title">Utilizadores de Teste</h4>
-        <ul>
-            <li><strong>admin@teste.com</strong> / <strong>admin123</strong></li>
-            <li><strong>utilizador@teste.com</strong> / <strong>user123</strong></li>
-        </ul>
+        <!-- Recursos -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingRecursos">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecursos">
+                    <i class="bi bi-book me-2"></i> Recursos de Terceiros e Referências
+                </button>
+            </h2>
+            <div id="collapseRecursos" class="accordion-collapse collapse" data-bs-parent="#accordionProjeto">
+                <div class="accordion-body">
+                    <ul>
+                        <li><a href="https://icons.getbootstrap.com" target="_blank">Bootstrap Icons</a> – ícones visuais no layout</li>
+                        <li><a href="https://jqueryvalidation.org/" target="_blank">jQuery Validation</a> – validação de campos no front-end</li>
+                        <li>Documentação oficial da Microsoft ASP.NET e Bootstrap para boas práticas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utilizadores -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingUtilizadores">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUtilizadores">
+                    <i class="bi bi-person-lock me-2"></i> Utilizadores de Teste
+                </button>
+            </h2>
+            <div id="collapseUtilizadores" class="accordion-collapse collapse" data-bs-parent="#accordionProjeto">
+                <div class="accordion-body">
+                    <ul>
+                        <li><strong>admin@teste.com</strong> / <strong>admin123</strong></li>
+                        <li><strong>utilizador@teste.com</strong> / <strong>user123</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
+
