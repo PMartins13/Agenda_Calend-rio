@@ -40,9 +40,9 @@ namespace AgendaCalendario.Controllers
                 return View();
             }
             
-            if (!Regex.IsMatch(password, @"^(?=(?:.*[A-Z]){1,})(?=(?:.*\d){4,})(?=(?:.*[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?]){1,}).{8,}$"))
+            if (!Regex.IsMatch(password, @"^(?=(?:.*[A-Z]){1,})(?=(?:.*\d){4,})(?=(?:.*[!@#$%^&*()_\-=\[\]{};':""\\|,.<>\/?]){1,}).{8,}$"))
             {
-                ModelState.AddModelError("", "A palavra-passe deve conter pelo menos 8 caracteres, 1 letra maiúscula, 4 números e 1 símbolo.");
+                ModelState.AddModelError("", "Password inválida (back-end): requisitos mínimos não cumpridos.");
                 return View();
             }
 

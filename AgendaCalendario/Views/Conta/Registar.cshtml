@@ -8,6 +8,66 @@
     }
 </style>
 
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("form").submit(function (e) {
+                const password = $("input[name='password']").val();
+                const requisitos = {
+                    tamanho: password.length >= 8,
+                    maiuscula: /[A-Z]/.test(password),
+                    numeros: (password.match(/\d/g) || []).length >= 4,
+                    simbolo: /[!@@#$%^&*()_\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                };
+
+                let valido = requisitos.tamanho && requisitos.maiuscula && requisitos.numeros && requisitos.simbolo;
+
+                if (!valido) {
+                    e.preventDefault(); // Impede submissão
+
+                    $("#passwordBox")
+                        .removeClass("alert-info")
+                        .addClass("alert-danger");
+
+                    $("#req-tamanho").html(`${requisitos.tamanho ? '✅' : '❌'} Pelo menos <strong>8 caracteres</strong>`);
+                    $("#req-maiuscula").html(`${requisitos.maiuscula ? '✅' : '❌'} Pelo menos <strong>1 letra maiúscula</strong>`);
+                    $("#req-numeros").html(`${requisitos.numeros ? '✅' : '❌'} Pelo menos <strong>4 números</strong>`);
+                    $("#req-simbolo").html(`${requisitos.simbolo ? '✅' : '❌'} Pelo menos <strong>1 símbolo</strong> (ex: !, @@, #...)`);
+                }
+            });
+        });
+    </script>
+    
+    <script>
+    $("input[name='password']").on("input", function () {
+        const password = $(this).val();
+        let forca = 0;
+
+        if (password.length >= 8) forca++;
+        if (/[A-Z]/.test(password)) forca++;
+        if ((password.match(/\d/g) || []).length >= 4) forca++;
+        if (/[!@@#$%^&*()_\-=\[\]{};':"\\|,.<>\/?]/.test(password)) forca++;
+        if (password.length >= 12) forca++;
+
+        let largura = forca * 20;
+        let cor = "bg-danger";
+        let texto = "Muito fraca";
+
+        if (forca === 2) { cor = "bg-warning"; texto = "Fraca"; }
+        else if (forca === 3) { cor = "bg-info"; texto = "Razoável"; }
+        else if (forca === 4) { cor = "bg-primary"; texto = "Forte"; }
+        else if (forca === 5) { cor = "bg-success"; texto = "Excelente"; }
+
+        $("#barraForca")
+            .removeClass("bg-danger bg-warning bg-info bg-primary bg-success")
+            .addClass(cor)
+            .css("width", largura + "%");
+
+        $("#textoForca").text(texto);
+    });
+</script>
+}
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -29,23 +89,32 @@
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Palavra-passe</label>
-                        <input type="password" name="password" class="form-control" required
-                               pattern="^(?=(?:.*[A-Z]){1,})(?=(?:.*\d){4,})(?=(?:.*[!@@#$%^&*()_\-=\[\]{};':&quot;\\|,.<>\/?]){1,}).{8,}$"
-                               title="A palavra-passe deve ter no mínimo 8 caracteres, incluindo 1 maiúscula, 1 símbolo e pelo menos 4 números." />
+                        <input type="password" name="password" class="form-control" required />
 
+                        <div id="passwordBox" class="mt-2 alert alert-info p-2 small">
+                            <strong>A palavra-passe deve conter:</strong>
+                            <ul class="mb-0">
+                                <li id="req-tamanho">✅ Pelo menos <strong>8 caracteres</strong></li>
+                                <li id="req-maiuscula">✅ Pelo menos <strong>1 letra maiúscula</strong></li>
+                                <li id="req-numeros">✅ Pelo menos <strong>4 números</strong></li>
+                                <li id="req-simbolo">✅ Pelo menos <strong>1 símbolo</strong> (ex: !, @@, #...)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <label class="form-label">Segurança da palavra-passe</label>
+                        <div class="progress" style="height: 10px;">
+                            <div id="barraForca" class="progress-bar bg-danger" role="progressbar" style="width: 0%;">
+                            </div>
+                        </div>
+                        <small id="textoForca" class="text-muted">Muito fraca</small>
                     </div>
 
                     <button type="submit" class="btn btn-success w-100 mt-2">
                         <i class="bi bi-person-plus"></i> Criar Conta
                     </button>
                 </form>
-
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div class="alert alert-danger mt-3">
-                        @Html.ValidationSummary()
-                    </div>
-                }
             </div>
         </div>
     </div>
