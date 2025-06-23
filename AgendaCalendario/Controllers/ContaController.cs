@@ -100,20 +100,52 @@ namespace AgendaCalendario.Controllers
             
         }
         
+        [HttpGet]
+        public async Task<IActionResult> Perfil()
+        {
+            var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+            if (utilizadorId == null) return RedirectToAction("Login");
+
+            var utilizador = await _context.Utilizadores.FindAsync(utilizadorId);
+            if (utilizador == null) return NotFound();
+
+            var vm = new UtilizadorPerfilViewModel
+            {
+                Nome = utilizador.Nome,
+                Email = utilizador.Email
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Perfil(UtilizadorPerfilViewModel vm)
+        {
+            var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+            if (utilizadorId == null) return RedirectToAction("Login");
+
+            if (!ModelState.IsValid) return View(vm);
+
+            var utilizador = await _context.Utilizadores.FindAsync(utilizadorId);
+            if (utilizador == null) return NotFound();
+
+            utilizador.Nome = vm.Nome;
+            utilizador.Email = vm.Email;
+
+            if (!string.IsNullOrWhiteSpace(vm.NovaPassword))
+                utilizador.PasswordHash = ObterHash(vm.NovaPassword); 
+
+            await _context.SaveChangesAsync();
+
+            ViewBag.Mensagem = "Dados atualizados com sucesso!";
+            return View(vm);
+        }
+
+        
         public IActionResult Logout()
         {
             HttpContext.Session.Clear(); // limpa a sessão atual
             return RedirectToAction("Index", "Home");
-        }
-        
-        public IActionResult Perfil()
-        {
-            if (HttpContext.Session.GetInt32("UtilizadorId") == null)
-            {
-                return RedirectToAction("Login", "Conta");
-            }
-
-            return View();
         }
         
         // Função auxiliar para encriptar password
