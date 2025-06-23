@@ -29,7 +29,10 @@
 
                     <div class="mb-3">
                         <label for="password" class="form-label">Palavra-passe</label>
-                        <input type="password" name="password" class="form-control" required />
+                        <input type="password" name="password" class="form-control" required
+                               pattern="^(?=(?:.*[A-Z]){1,})(?=(?:.*\d){4,})(?=(?:.*[!@@#$%^&*()_\-=\[\]{};':&quot;\\|,.<>\/?]){1,}).{8,}$"
+                               title="A palavra-passe deve ter no mínimo 8 caracteres, incluindo 1 maiúscula, 1 símbolo e pelo menos 4 números." />
+
                     </div>
 
                     <button type="submit" class="btn btn-success w-100 mt-2">
