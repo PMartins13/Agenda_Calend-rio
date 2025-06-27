@@ -173,7 +173,9 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("titulo").value,
             descricao: document.getElementById("descricao").value,
             data: document.getElementById("data").value,
-            categoriaId: document.getElementById("categoriaId").value || null
+            categoriaId: document.getElementById("categoriaId").value || null,
+            recorrencia: parseInt(document.getElementById("recorrencia").value),
+            dataFimRecorrencia: document.getElementById("dataFimRecorrencia").value || null
         };
 
         fetch("/Tarefas/Criar", {
@@ -260,6 +262,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 carregarTarefas(dataSelecionada);
             } else {
                 alert("Erro ao apagar tarefa.");
+            }
+        });
+    });
+
+        document.getElementById("btnApagarTodasTarefas").addEventListener("click", () => {
+        const titulo = document.getElementById("editTitulo").value;
+
+        if (!confirm("Tens a certeza que queres eliminar TODAS as tarefas com este título?")) return;
+
+        fetch("/Tarefas/ApagarTodasComTitulo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(titulo)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                carregarTarefas(dataSelecionada);
+            } else {
+                alert("Erro ao apagar todas as tarefas.");
             }
         });
     });

@@ -164,5 +164,30 @@ namespace AgendaCalendario.Controllers
             var hash = sha.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApagarConta()
+        {
+            var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+            if (utilizadorId == null) return RedirectToAction("Login");
+
+            var utilizador = await _context.Utilizadores
+                .Include(u => u.Tarefas)
+                .Include(u => u.Categorias)
+                .FirstOrDefaultAsync(u => u.Id == utilizadorId);
+
+            if (utilizador == null) return NotFound();
+
+            _context.Tarefas.RemoveRange(utilizador.Tarefas);
+            _context.Categorias.RemoveRange(utilizador.Categorias);
+            _context.Utilizadores.Remove(utilizador);
+
+            await _context.SaveChangesAsync();
+
+            HttpContext.Session.Clear();
+            TempData["ContaApagada"] = "A sua conta foi eliminada com sucesso.";
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

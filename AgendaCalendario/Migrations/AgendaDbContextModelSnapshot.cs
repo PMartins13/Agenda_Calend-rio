@@ -55,10 +55,16 @@ namespace AgendaCalendario.Migrations
                     b.Property<DateTime>("Data")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("DataFimRecorrencia")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Descricao")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("Recorrencia")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Titulo")
                         .IsRequired()

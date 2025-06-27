@@ -8,20 +8,20 @@ public class Utilizador
     
     [Required]
     [MaxLength(100)]
-    public string Nome { get; set; }
+    public string Nome { get; set; } = string.Empty;
 
     [Required]
     [EmailAddress]
     [MaxLength(150)]
-    public string Email { get; set; }
+    public string Email { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(200)]
-    public string PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = string.Empty;
 
     // Relação: 1 Utilizador tem muitas Tarefas
-    public ICollection<Tarefa> Tarefas { get; set; }
+    public ICollection<Tarefa> Tarefas { get; set; } = new List<Tarefa>();
 
     // Relação: 1 Utilizador tem muitas Categorias
-    public ICollection<Categoria> Categorias { get; set; }
+    public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
 }
