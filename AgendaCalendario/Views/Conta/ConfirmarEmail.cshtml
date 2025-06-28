@@ -1,0 +1,67 @@
+@{
+    ViewData["Title"] = "Confirmar Email";
+}
+
+<style>
+    body {
+        background: linear-gradient(to right, #e3f2fd, #ffffff);
+    }
+    .confirm-card {
+        max-width: 420px;
+        margin: 60px auto;
+        border-radius: 16px;
+        border: 1px solid #e3f2fd;
+        background: #fff;
+        box-shadow: 0 4px 24px rgba(24, 97, 172, 0.07);
+    }
+    .codigo-box {
+        font-size: 2rem;
+        letter-spacing: 8px;
+        background: #e3f2fd;
+        color: #1861ac;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-weight: bold;
+        border: 1px dashed #1861ac;
+        display: inline-block;
+        margin: 18px 0 24px 0;
+    }
+</style>
+
+<div class="container">
+    <div class="confirm-card card shadow p-4">
+        <div class="text-center mb-3">
+            <i class="bi bi-envelope-check-fill text-primary" style="font-size:2.5rem"></i>
+            <h3 class="card-title mt-2 mb-1">Confirmação de Email</h3>
+            <p class="text-muted mb-2">Enviámos um código de confirmação para o teu email.</p>
+            <p class="small text-secondary mb-0">Verifica a caixa de entrada (ou spam) e insere o código abaixo para ativares a tua conta.</p>
+        </div>
+
+        @if (ViewBag.Erro != null)
+        {
+            <div class="alert alert-danger" role="alert">@ViewBag.Erro</div>
+        }
+
+        @if (TempData["CodigoReenviado"] != null)
+        {
+            <div class="alert alert-success" role="alert">@TempData["CodigoReenviado"]</div>
+        }
+
+        <form method="post" autocomplete="off">
+            <input type="hidden" name="email" value="@ViewBag.Email" />
+            <div class="mb-3 text-center">
+                <label for="codigo" class="form-label fw-semibold">Código de confirmação</label>
+                <input type="text" name="codigo" id="codigo" class="form-control form-control-lg text-center" maxlength="6" required style="letter-spacing:8px;font-size:1.5rem;" autofocus />
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-2">
+                <i class="bi bi-check-circle"></i> Confirmar Email
+            </button>
+        </form>
+
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                Não recebeste o código? <a href="@Url.Action("ReenviarCodigo", "Conta", new { email = ViewBag.Email })" class="text-primary">Reenviar código</a>
+            </small>
+        </div>
+    </div>
+</div>

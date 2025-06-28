@@ -24,4 +24,7 @@ public class Utilizador
 
     // Relação: 1 Utilizador tem muitas Categorias
     public ICollection<Categoria> Categorias { get; set; } = new List<Categoria>();
+
+    public string? CodigoConfirmacao { get; set; }
+    public bool EmailConfirmado { get; set; } = false;
 }
