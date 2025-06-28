@@ -145,6 +145,9 @@ namespace AgendaCalendario.Controllers
 
             await _context.SaveChangesAsync();
 
+            // Atualize a sessão com o novo nome
+            HttpContext.Session.SetString("UtilizadorNome", utilizador.Nome);
+
             ViewBag.Mensagem = "Dados atualizados com sucesso!";
             return View(vm);
         }
