@@ -25,19 +25,21 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Middleware do Swagger (visível mesmo em produção — opcional)
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+app.UseSession(); // A sessão tem de estar disponível antes de usar o middleware que acede à sessão
+
+// Middleware do Swagger só pode aceder à sessão depois de UseSession()
+app.UseMiddleware<AgendaCalendario.Middleware.SwaggerAuthorizationMiddleware>();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgendaCalendario API V1");
     c.RoutePrefix = "swagger"; // Acede a partir de /swagger
 });
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-app.UseSession();
 
 app.UseAuthorization();
 
@@ -48,5 +50,8 @@ app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// ✅ Inicializa a base de dados com dados de seed
+SeedData.Inicializar(app);
 
 app.Run();

@@ -18,6 +18,10 @@ public class Utilizador
     [Required]
     [MaxLength(200)]
     public string PasswordHash { get; set; }
+    
+    [Required]
+    [MaxLength(20)]
+    public string PerfilUtilizador { get; set; } = "Utilizador"; // valor por defeito
 
     // Relação: 1 Utilizador tem muitas Tarefas
     public ICollection<Tarefa> Tarefas { get; set; }

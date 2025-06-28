@@ -100,12 +100,13 @@ namespace AgendaCalendario.Controllers
                 return View();
             }
 
-            // Login com sucesso
+            // Login com sucesso: guardar dados na sessão
             HttpContext.Session.SetString("UtilizadorNome", utilizador.Nome);
             HttpContext.Session.SetInt32("UtilizadorId", utilizador.Id);
             HttpContext.Session.SetString("UtilizadorEmail", utilizador.Email);
+            HttpContext.Session.SetString("PerfilUtilizador", utilizador.PerfilUtilizador); 
+
             return RedirectToAction("Index", "Calendario");
-            
         }
         
         [HttpGet]
@@ -162,7 +163,7 @@ namespace AgendaCalendario.Controllers
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(input);
             var hash = sha.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            return BitConverter.ToString(hash).Replace("-", "").ToLower(); // igual ao SeedData
         }
     }
 }
