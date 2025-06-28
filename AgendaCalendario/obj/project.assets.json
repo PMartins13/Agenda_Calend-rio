@@ -5055,31 +5055,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Duarte Gonçalves\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\pedro\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\AgendaCalendario.csproj",
+      "projectUniqueName": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj",
       "projectName": "AgendaCalendario",
-      "projectPath": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\AgendaCalendario.csproj",
-      "packagesPath": "C:\\Users\\Duarte Gonçalves\\.nuget\\packages\\",
-      "outputPath": "C:\\Projetos\\AgendaCalendario\\AgendaCalendario\\obj\\",
+      "projectPath": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj",
+      "packagesPath": "C:\\Users\\pedro\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Duarte Gonçalves\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\pedro\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -5097,8 +5090,7 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.300"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -5138,7 +5130,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.411/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -76,6 +76,13 @@
                     <i class="bi bi-person-plus me-2"></i> Criar Conta
                 </h3>
 
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger mt-3">
+                        @Html.ValidationSummary()
+                    </div>
+                }
+
                 <form asp-action="Registar" method="post">
                     <div class="mb-3">
                         <label for="nome" class="form-label">Nome</label>

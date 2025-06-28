@@ -53,7 +53,51 @@ public class TarefasController : Controller
         if (string.IsNullOrEmpty(tarefa.Titulo) || tarefa.Data == default)
             return BadRequest("Campos obrigatórios em falta.");
 
+        // Adiciona a tarefa original
         _context.Tarefas.Add(tarefa);
+
+        // Se for recorrente, gera as próximas instâncias
+        if (tarefa.Recorrencia != TipoRecorrencia.Nenhuma)
+        {
+            var dataFim = tarefa.DataFimRecorrencia;
+            DateTime limite = tarefa.Data.AddMonths(6); // Limite de 6 meses
+            if (dataFim.HasValue && dataFim.Value < limite)
+                limite = dataFim.Value;
+
+            DateTime dataAtual = tarefa.Data;
+            while (true)
+            {
+                switch (tarefa.Recorrencia)
+                {
+                    case TipoRecorrencia.Diaria:
+                        dataAtual = dataAtual.AddDays(1);
+                        break;
+                    case TipoRecorrencia.Semanal:
+                        dataAtual = dataAtual.AddDays(7);
+                        break;
+                    case TipoRecorrencia.Mensal:
+                        dataAtual = dataAtual.AddMonths(1);
+                        break;
+                }
+
+                // Condição de paragem: nunca passar do limite de 6 meses (ou data de fim, se for antes)
+                if (dataAtual > limite)
+                    break;
+
+                var novaTarefa = new Tarefa
+                {
+                    Titulo = tarefa.Titulo,
+                    Descricao = tarefa.Descricao,
+                    Data = dataAtual,
+                    UtilizadorId = tarefa.UtilizadorId,
+                    CategoriaId = tarefa.CategoriaId,
+                    Recorrencia = tarefa.Recorrencia,
+                    DataFimRecorrencia = tarefa.DataFimRecorrencia
+                };
+                _context.Tarefas.Add(novaTarefa);
+            }
+        }
+
         await _context.SaveChangesAsync();
         return Ok();
     }
@@ -110,6 +154,23 @@ public class TarefasController : Controller
         if (tarefa == null || tarefa.UtilizadorId != utilizadorId) return NotFound();
 
         _context.Tarefas.Remove(tarefa);
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ApagarTodasComTitulo([FromBody] string titulo)
+    {
+        var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+        if (utilizadorId == null) return Unauthorized();
+
+        var tarefas = await _context.Tarefas
+            .Where(t => t.UtilizadorId == utilizadorId && t.Titulo == titulo)
+            .ToListAsync();
+
+        if (!tarefas.Any()) return NotFound();
+
+        _context.Tarefas.RemoveRange(tarefas);
         await _context.SaveChangesAsync();
         return Ok();
     }
