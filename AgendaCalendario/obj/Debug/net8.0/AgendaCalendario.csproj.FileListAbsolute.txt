@@ -195,3 +195,8 @@ C:\Projetos\AgendaCalendario\AgendaCalendario\obj\Debug\net8.0\refint\AgendaCale
 C:\Projetos\AgendaCalendario\AgendaCalendario\obj\Debug\net8.0\AgendaCalendario.pdb
 C:\Projetos\AgendaCalendario\AgendaCalendario\obj\Debug\net8.0\AgendaCalendario.genruntimeconfig.cache
 C:\Projetos\AgendaCalendario\AgendaCalendario\obj\Debug\net8.0\ref\AgendaCalendario.dll
+C:\Projetos\AgendaCalendario\AgendaCalendario\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Projetos\AgendaCalendario\AgendaCalendario\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Projetos\AgendaCalendario\AgendaCalendario\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Projetos\AgendaCalendario\AgendaCalendario\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Projetos\AgendaCalendario\AgendaCalendario\obj\Debug\net8.0\AgendaCalendario.MvcApplicationPartsAssemblyInfo.cs
