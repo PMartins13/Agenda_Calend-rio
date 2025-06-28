@@ -1,4 +1,5 @@
 ﻿using AgendaCalendario.Data;
+using AgendaCalendario.Models.API_Dtos;
 using AgendaCalendario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
