@@ -13,11 +13,11 @@
         /// <summary>
         /// Nome da categoria.
         /// </summary>
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
         /// <summary>
         /// Cor da categoria (em formato hexadecimal).
         /// </summary>
-        public string Cor { get; set; }
+        public string Cor { get; set; } = string.Empty;
     }
 }

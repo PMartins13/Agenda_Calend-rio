@@ -14,3 +14,11 @@
 AgendaCalendario.db
 AgendaCalendario.db-shm
 AgendaCalendario.db-wal
+#ingorar para fins de merge
+/bin/
+/obj/
+*.dll
+*.exe
+*.pdb
+*.cache
+*.nuget.*

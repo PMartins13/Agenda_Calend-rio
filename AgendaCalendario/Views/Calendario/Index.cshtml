@@ -44,6 +44,19 @@
                                         <option value="">(Sem categoria)</option>
                                     </select>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="recorrencia" class="form-label">Recorrência</label>
+                                    <select id="recorrencia" name="Recorrencia" class="form-select">
+                                        <option value="0">Nenhuma</option>
+                                        <option value="1">Diária</option>
+                                        <option value="2">Semanal</option>
+                                        <option value="3">Mensal</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="divDataFimRecorrencia" style="display:none;">
+                                    <label for="dataFimRecorrencia" class="form-label">Data de fim da recorrência</label>
+                                    <input type="date" id="dataFimRecorrencia" name="DataFimRecorrencia" class="form-control" />
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-primary">Criar +</button>
@@ -109,9 +122,23 @@
                                         <option value="">(Sem categoria)</option>
                                     </select>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="recorrencia" class="form-label">Recorrência</label>
+                                    <select id="recorrencia" name="Recorrencia" class="form-select">
+                                        <option value="0">Nenhuma</option>
+                                        <option value="1">Diária</option>
+                                        <option value="2">Semanal</option>
+                                        <option value="3">Mensal</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="divDataFimRecorrencia" style="display:none;">
+                                    <label for="dataFimRecorrencia" class="form-label">Data de fim da recorrência</label>
+                                    <input type="date" id="dataFimRecorrencia" name="DataFimRecorrencia" class="form-control" />
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger" id="btnApagarTarefa">Eliminar</button>
+                                <button type="button" class="btn btn-danger" id="btnApagarTodasTarefas">Eliminar Todas</button>
                                 <button type="submit" class="btn btn-success">Guardar</button>
                             </div>
                         </form>

@@ -1,29 +1,78 @@
-﻿@model UtilizadorPerfilViewModel
+﻿@model AgendaCalendario.Models.UtilizadorPerfilViewModel
 
 @section Scripts {
-<script>
-    $(function () {
-        $("#btnTogglePassword").click(function () {
-            $("#passwordFields").slideToggle();
-        });
+    <script>
+        $(function () {
+            $("#btnTogglePassword").click(function () {
+                $("#passwordFields").slideToggle();
+            });
 
-        $("form").submit(function (e) {
-            let nova = $("#NovaPassword").val();
-            let confirmar = $("#ConfirmarPassword").val();
+            $("form").submit(function (e) {
+                const password = $("#NovaPassword").val();
+                const requisitos = {
+                    tamanho: password.length >= 8,
+                    maiuscula: /[A-Z]/.test(password),
+                    numeros: (password.match(/\d/g) || []).length >= 4,
+                    simbolo: /[!@@#%^&*()_\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                };
 
-            if ($("#passwordFields").is(":visible") && nova !== confirmar) {
-                e.preventDefault();
-                $("#ConfirmarPassword").addClass("is-invalid");
-                $("#passwordMismatch").removeClass("d-none");
-            }
-        });
+                let valido = requisitos.tamanho && requisitos.maiuscula && requisitos.numeros && requisitos.simbolo;
 
-        $("#ConfirmarPassword").on("input", function () {
-            $("#ConfirmarPassword").removeClass("is-invalid");
-            $("#passwordMismatch").addClass("d-none");
+                if ($("#passwordFields").is(":visible") && !valido) {
+                    e.preventDefault(); // Impede submissão
+
+                    $("#passwordBox")
+                        .removeClass("alert-info")
+                        .addClass("alert-danger");
+
+                    $("#req-tamanho").html(`${requisitos.tamanho ? '✅' : '❌'} Pelo menos <strong>8 caracteres</strong>`);
+                    $("#req-maiuscula").html(`${requisitos.maiuscula ? '✅' : '❌'} Pelo menos <strong>1 letra maiúscula</strong>`);
+                    $("#req-numeros").html(`${requisitos.numeros ? '✅' : '❌'} Pelo menos <strong>4 números</strong>`);
+                    $("#req-simbolo").html(`${requisitos.simbolo ? '✅' : '❌'} Pelo menos <strong>1 símbolo</strong> (ex: !, @@, #...)`);
+                }
+            });
+
+            // Validação e barra de força em tempo real
+            $("#NovaPassword").on("input", function () {
+                const password = $(this).val();
+                const requisitos = {
+                    tamanho: password.length >= 8,
+                    maiuscula: /[A-Z]/.test(password),
+                    numeros: (password.match(/\d/g) || []).length >= 4,
+                    simbolo: /[!@@#%^&*()_\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                };
+
+                $("#req-tamanho").html(`${requisitos.tamanho ? '✅' : '❌'} Pelo menos <strong>8 caracteres</strong>`);
+                $("#req-maiuscula").html(`${requisitos.maiuscula ? '✅' : '❌'} Pelo menos <strong>1 letra maiúscula</strong>`);
+                $("#req-numeros").html(`${requisitos.numeros ? '✅' : '❌'} Pelo menos <strong>4 números</strong>`);
+                $("#req-simbolo").html(`${requisitos.simbolo ? '✅' : '❌'} Pelo menos <strong>1 símbolo</strong> (ex: !, @@, #...)`);
+
+                // Barra de força
+                let forca = 0;
+                if (requisitos.tamanho) forca++;
+                if (requisitos.maiuscula) forca++;
+                if (requisitos.numeros) forca++;
+                if (requisitos.simbolo) forca++;
+                if (password.length >= 12) forca++;
+
+                let largura = forca * 20;
+                let cor = "bg-danger";
+                let texto = "Muito fraca";
+
+                if (forca === 2) { cor = "bg-warning"; texto = "Fraca"; }
+                else if (forca === 3) { cor = "bg-info"; texto = "Razoável"; }
+                else if (forca === 4) { cor = "bg-primary"; texto = "Forte"; }
+                else if (forca === 5) { cor = "bg-success"; texto = "Excelente"; }
+
+                $("#barraForca")
+                    .removeClass("bg-danger bg-warning bg-info bg-primary bg-success")
+                    .addClass(cor)
+                    .css("width", largura + "%");
+
+                $("#textoForca").text(texto);
+            });
         });
-    });
-</script>
+    </script>
 }
 
 <div class="card shadow p-4 mt-4">
@@ -52,6 +101,10 @@
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-save"></i> Guardar
             </button>
+
+            <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#modalApagarConta">
+                <i class="bi bi-trash"></i> Apagar Conta
+            </button>
         </div>
 
         <!-- Campos de password ocultos -->
@@ -68,11 +121,52 @@
                 <span asp-validation-for="ConfirmarPassword" class="text-danger"></span>
                 <div id="passwordMismatch" class="text-danger d-none">As passwords não coincidem.</div>
             </div>
+
+            <!-- Requisitos de segurança -->
+            <div id="passwordBox" class="mt-2 alert alert-info p-2 small">
+                <strong>A palavra-passe deve conter:</strong>
+                <ul class="mb-0">
+                    <li id="req-tamanho">✅ Pelo menos <strong>8 caracteres</strong></li>
+                    <li id="req-maiuscula">✅ Pelo menos <strong>1 letra maiúscula</strong></li>
+                    <li id="req-numeros">✅ Pelo menos <strong>4 números</strong></li>
+                    <li id="req-simbolo">✅ Pelo menos <strong>1 símbolo</strong> (ex: !, @@, #...)</li>
+                </ul>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Segurança da palavra-passe</label>
+                <div class="progress" style="height: 10px;">
+                    <div id="barraForca" class="progress-bar bg-danger" role="progressbar" style="width: 0%;"></div>
+                </div>
+                <small id="textoForca" class="text-muted">Muito fraca</small>
+            </div>
         </div>
     </form>
 
     @if (ViewBag.Mensagem != null)
     {
-    <div class="alert alert-success mt-3" role="alert">@ViewBag.Mensagem</div>
+        <div class="alert alert-success mt-3" role="alert">@ViewBag.Mensagem</div>
     }
+</div>
+
+<!-- Modal para apagar conta -->
+<div class="modal fade" id="modalApagarConta" tabindex="-1" aria-labelledby="modalApagarContaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalApagarContaLabel">Confirmar Apagar Conta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza de que deseja apagar a sua conta? Esta ação é irreversível.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-action="ApagarConta" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Apagar Conta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgendaCalendario.Data;
 using AgendaCalendario.Models;
@@ -90,7 +90,7 @@ namespace AgendaCalendario.Controllers.API
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(input);
             var hash = sha.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
     }
 }
