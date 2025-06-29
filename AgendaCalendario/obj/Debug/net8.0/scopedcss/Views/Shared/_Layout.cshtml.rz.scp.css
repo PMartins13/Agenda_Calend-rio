@@ -1,44 +1,53 @@
-/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
+/* Estilos base para componentes do projeto */
 
+/* Navbar Brand/Logo */
 a.navbar-brand[b-2c65nlegqt] {
   white-space: normal;
   text-align: center;
   word-break: break-all;
 }
 
+/* Links padrão */
 a[b-2c65nlegqt] {
   color: #0077cc;
 }
 
+/* Botão primário */
 .btn-primary[b-2c65nlegqt] {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 
-.nav-pills .nav-link.active[b-2c65nlegqt], .nav-pills .show > .nav-link[b-2c65nlegqt] {
+/* Navegação com pills */
+.nav-pills .nav-link.active[b-2c65nlegqt], 
+.nav-pills .show > .nav-link[b-2c65nlegqt] {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
 }
 
+/* Bordas */
 .border-top[b-2c65nlegqt] {
   border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom[b-2c65nlegqt] {
   border-bottom: 1px solid #e5e5e5;
 }
 
+/* Sombra suave */
 .box-shadow[b-2c65nlegqt] {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
+/* Botão de política de cookies */
 button.accept-policy[b-2c65nlegqt] {
   font-size: 1rem;
   line-height: inherit;
 }
 
+/* Rodapé fixo */
 .footer[b-2c65nlegqt] {
   position: absolute;
   bottom: 0;

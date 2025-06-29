@@ -1,4 +1,5 @@
 ﻿@{
+    // Define o título da página
     ViewData["Title"] = "Criar Conta";
 }
 
@@ -11,8 +12,10 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Validação no envio do formulário
             $("form").submit(function (e) {
                 const password = $("input[name='password']").val();
+                // Define os requisitos de senha
                 const requisitos = {
                     tamanho: password.length >= 8,
                     maiuscula: /[A-Z]/.test(password),
@@ -22,6 +25,7 @@
 
                 let valido = requisitos.tamanho && requisitos.maiuscula && requisitos.numeros && requisitos.simbolo;
 
+                // Se senha inválida, impede envio e mostra feedback
                 if (!valido) {
                     e.preventDefault(); // Impede submissão
 
@@ -29,6 +33,7 @@
                         .removeClass("alert-info")
                         .addClass("alert-danger");
 
+                    // Atualiza indicadores visuais dos requisitos
                     $("#req-tamanho").html(`${requisitos.tamanho ? '✅' : '❌'} Pelo menos <strong>8 caracteres</strong>`);
                     $("#req-maiuscula").html(`${requisitos.maiuscula ? '✅' : '❌'} Pelo menos <strong>1 letra maiúscula</strong>`);
                     $("#req-numeros").html(`${requisitos.numeros ? '✅' : '❌'} Pelo menos <strong>4 números</strong>`);
@@ -39,25 +44,30 @@
     </script>
     
     <script>
+    // Validação em tempo real da força da senha
     $("input[name='password']").on("input", function () {
         const password = $(this).val();
         let forca = 0;
 
+        // Calcula pontuação de força
         if (password.length >= 8) forca++;
         if (/[A-Z]/.test(password)) forca++;
         if ((password.match(/\d/g) || []).length >= 4) forca++;
         if (/[!@@#$%^&*()_\-=\[\]{};':"\\|,.<>\/?]/.test(password)) forca++;
         if (password.length >= 12) forca++;
 
+        // Define aparência da barra de força
         let largura = forca * 20;
         let cor = "bg-danger";
         let texto = "Muito fraca";
 
+        // Ajusta cor e texto baseado na força
         if (forca === 2) { cor = "bg-warning"; texto = "Fraca"; }
         else if (forca === 3) { cor = "bg-info"; texto = "Razoável"; }
         else if (forca === 4) { cor = "bg-primary"; texto = "Forte"; }
         else if (forca === 5) { cor = "bg-success"; texto = "Excelente"; }
 
+        // Atualiza visual da barra de força
         $("#barraForca")
             .removeClass("bg-danger bg-warning bg-info bg-primary bg-success")
             .addClass(cor)
@@ -68,14 +78,17 @@
 </script>
 }
 
+<!-- Container principal -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
+            <!-- Card do formulário -->
             <div class="card shadow p-4">
                 <h3 class="card-title text-center mb-4">
                     <i class="bi bi-person-plus me-2"></i> Criar Conta
                 </h3>
 
+                <!-- Exibe erros de validação -->
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div class="alert alert-danger mt-3">
@@ -83,21 +96,26 @@
                     </div>
                 }
 
+                <!-- Formulário de registro -->
                 <form asp-action="Registar" method="post">
+                    <!-- Campo Nome -->
                     <div class="mb-3">
                         <label for="nome" class="form-label">Nome</label>
                         <input type="text" name="nome" class="form-control" required />
                     </div>
 
+                    <!-- Campo Email -->
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" name="email" class="form-control" required />
                     </div>
 
+                    <!-- Campo Senha com requisitos -->
                     <div class="mb-3">
                         <label for="password" class="form-label">Palavra-passe</label>
                         <input type="password" name="password" class="form-control" required />
 
+                        <!-- Box de requisitos de senha -->
                         <div id="passwordBox" class="mt-2 alert alert-info p-2 small">
                             <strong>A palavra-passe deve conter:</strong>
                             <ul class="mb-0">
@@ -109,6 +127,7 @@
                         </div>
                     </div>
                     
+                    <!-- Indicador de força da senha -->
                     <div class="mt-2">
                         <label class="form-label">Segurança da palavra-passe</label>
                         <div class="progress" style="height: 10px;">
@@ -118,6 +137,7 @@
                         <small id="textoForca" class="text-muted">Muito fraca</small>
                     </div>
 
+                    <!-- Botão de submit -->
                     <button type="submit" class="btn btn-success w-100 mt-2">
                         <i class="bi bi-person-plus"></i> Criar Conta
                     </button>

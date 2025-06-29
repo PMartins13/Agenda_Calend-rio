@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using AgendaCalendario.Data;
 using AgendaCalendario.Models;
 
 namespace AgendaCalendario.Controllers;
 
+/// <summary>
+/// Controlador responsável pela gestão de tarefas no calendário
+/// </summary>
 public class TarefasController : Controller
 {
     private readonly AgendaDbContext _context;
@@ -19,19 +18,21 @@ public class TarefasController : Controller
         _context = context;
     }
 
-    // GET: /Tarefas/PorData?data=2025-06-12
+    /// <summary>
+    /// Obtém tarefas de uma data específica
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> PorData(string data)
     {
         var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
-        if (utilizadorId == null)
-            return Unauthorized();
+        if (utilizadorId == null) return Unauthorized();
 
         if (!DateTime.TryParse(data, out var dataSelecionada))
             return BadRequest("Data inválida");
 
         var tarefas = await _context.Tarefas
-            .Where(t => t.UtilizadorId == utilizadorId && t.Data.Date == dataSelecionada.Date)
+            .Where(t => t.UtilizadorId == utilizadorId && 
+                       t.Data.Date == dataSelecionada.Date)
             .Include(t => t.Categorias)
             .Select(t => new TarefaDtoViewModel
             {
@@ -39,7 +40,7 @@ public class TarefasController : Controller
                 Titulo = t.Titulo,
                 Descricao = t.Descricao,
                 Data = t.Data,
-                Categorias = t.Categorias.Select(c => new CategoriaResumoDto()
+                Categorias = t.Categorias.Select(c => new CategoriaResumoDto
                 {
                     Id = c.Id,
                     Nome = c.Nome,
@@ -51,21 +52,27 @@ public class TarefasController : Controller
         return Json(tarefas);
     }
     
+    /// <summary>
+    /// Obtém tarefas dentro de um intervalo de datas
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> PorIntervalo(string inicio, string fim)
     {
         var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
-        if (utilizadorId == null)
-            return Unauthorized();
+        if (utilizadorId == null) return Unauthorized();
 
-        if (!DateTime.TryParse(inicio, out var dataInicio) || !DateTime.TryParse(fim, out var dataFim))
+        if (!DateTime.TryParse(inicio, out var dataInicio) || 
+            !DateTime.TryParse(fim, out var dataFim))
             return BadRequest("Datas inválidas");
 
         var tarefas = await _context.Tarefas
-            .Where(t => t.UtilizadorId == utilizadorId && t.Data.Date >= dataInicio.Date && t.Data.Date <= dataFim.Date)
+            .Where(t => t.UtilizadorId == utilizadorId && 
+                       t.Data.Date >= dataInicio.Date && 
+                       t.Data.Date <= dataFim.Date)
             .Include(t => t.Categorias)
             .ToListAsync();
 
+        // Formata eventos para o calendário
         var eventos = tarefas.Select(t => new {
             id = t.Id,
             title = t.Titulo,
@@ -74,7 +81,7 @@ public class TarefasController : Controller
             borderColor = t.Categorias.FirstOrDefault()?.Cor ?? "#999"
         }).ToList();
 
-        // Background highlights nos dias com tarefas
+        // Adiciona destaques visuais nos dias com tarefas
         var destaques = tarefas
             .Select(t => t.Data.Date)
             .Distinct()
@@ -90,6 +97,9 @@ public class TarefasController : Controller
         return Json(todos);
     }
     
+    /// <summary>
+    /// Cria uma nova tarefa (com suporte a recorrência)
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Criar([FromBody] TarefaInputModel tarefa)
     {
@@ -101,15 +111,17 @@ public class TarefasController : Controller
         if (string.IsNullOrEmpty(tarefa.Titulo) || tarefa.Data == default)
             return BadRequest("Campos obrigatórios em falta.");
 
-        // Recolher as categorias da base de dados a partir dos IDs recebidos
+        // Obtém categorias selecionadas
         var categorias = new List<Categoria>();
-        if (tarefa.CategoriasIds != null && tarefa.CategoriasIds.Any())
+        if (tarefa.CategoriasIds?.Any() == true)
         {
             categorias = await _context.Categorias
-                .Where(c => tarefa.CategoriasIds.Contains(c.Id) && c.UtilizadorId == utilizadorId)
+                .Where(c => tarefa.CategoriasIds.Contains(c.Id) && 
+                           c.UtilizadorId == utilizadorId)
                 .ToListAsync();
         }
 
+        // Cria tarefa principal
         var tarefaPrincipal = new Tarefa
         {
             Titulo = tarefa.Titulo,
@@ -123,11 +135,12 @@ public class TarefasController : Controller
 
         _context.Tarefas.Add(tarefaPrincipal);
 
-        // Repetir para tarefas recorrentes
+        // Cria tarefas recorrentes se necessário
         if (tarefa.Recorrencia != TipoRecorrencia.Nenhuma)
         {
             DateTime limite = tarefa.Data.AddMonths(6);
-            if (tarefa.DataFimRecorrencia.HasValue && tarefa.DataFimRecorrencia.Value < limite)
+            if (tarefa.DataFimRecorrencia.HasValue && 
+                tarefa.DataFimRecorrencia.Value < limite)
                 limite = tarefa.DataFimRecorrencia.Value;
 
             DateTime dataAtual = tarefa.Data;
@@ -135,9 +148,15 @@ public class TarefasController : Controller
             {
                 switch (tarefa.Recorrencia)
                 {
-                    case TipoRecorrencia.Diaria: dataAtual = dataAtual.AddDays(1); break;
-                    case TipoRecorrencia.Semanal: dataAtual = dataAtual.AddDays(7); break;
-                    case TipoRecorrencia.Mensal: dataAtual = dataAtual.AddMonths(1); break;
+                    case TipoRecorrencia.Diaria: 
+                        dataAtual = dataAtual.AddDays(1); 
+                        break;
+                    case TipoRecorrencia.Semanal: 
+                        dataAtual = dataAtual.AddDays(7); 
+                        break;
+                    case TipoRecorrencia.Mensal: 
+                        dataAtual = dataAtual.AddMonths(1); 
+                        break;
                 }
 
                 if (dataAtual > limite) break;
@@ -151,7 +170,8 @@ public class TarefasController : Controller
                     Recorrencia = tarefa.Recorrencia,
                     DataFimRecorrencia = tarefa.DataFimRecorrencia,
                     Categorias = await _context.Categorias
-                        .Where(c => tarefa.CategoriasIds.Contains(c.Id) && c.UtilizadorId == utilizadorId)
+                        .Where(c => tarefa.CategoriasIds.Contains(c.Id) && 
+                                  c.UtilizadorId == utilizadorId)
                         .ToListAsync()
                 };
 
@@ -163,7 +183,9 @@ public class TarefasController : Controller
         return Ok();
     }
 
-    
+    /// <summary>
+    /// Obtém detalhes de uma tarefa específica
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> Detalhes(int id)
     {
@@ -172,7 +194,8 @@ public class TarefasController : Controller
 
         var tarefa = await _context.Tarefas
             .Include(t => t.Categorias)
-            .FirstOrDefaultAsync(t => t.Id == id && t.UtilizadorId == utilizadorId);
+            .FirstOrDefaultAsync(t => t.Id == id && 
+                                    t.UtilizadorId == utilizadorId);
 
         if (tarefa == null) return NotFound();
 
@@ -183,11 +206,15 @@ public class TarefasController : Controller
             descricao = tarefa.Descricao,
             data = tarefa.Data.ToString("yyyy-MM-dd"),
             recorrencia = tarefa.Recorrencia,
-            dataFimRecorrencia = tarefa.DataFimRecorrencia?.ToString("yyyy-MM-dd"),
+            dataFimRecorrencia = tarefa.DataFimRecorrencia?
+                .ToString("yyyy-MM-dd"),
             categoriasIds = tarefa.Categorias.Select(c => c.Id).ToList()
         });
     }
 
+    /// <summary>
+    /// Atualiza uma tarefa existente
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Editar([FromBody] TarefaInputModel tarefa)
     {
@@ -196,25 +223,28 @@ public class TarefasController : Controller
 
         var original = await _context.Tarefas
             .Include(t => t.Categorias)
-            .FirstOrDefaultAsync(t => t.Id == tarefa.Id && t.UtilizadorId == utilizadorId);
+            .FirstOrDefaultAsync(t => t.Id == tarefa.Id && 
+                                    t.UtilizadorId == utilizadorId);
 
         if (original == null) return NotFound();
 
         if (string.IsNullOrEmpty(tarefa.Titulo) || tarefa.Data == default)
             return BadRequest("Campos obrigatórios em falta.");
 
+        // Atualiza dados básicos
         original.Titulo = tarefa.Titulo;
         original.Descricao = tarefa.Descricao;
         original.Data = tarefa.Data;
         original.Recorrencia = tarefa.Recorrencia;
         original.DataFimRecorrencia = tarefa.DataFimRecorrencia;
 
-        // Atualizar categorias
+        // Atualiza categorias
         original.Categorias.Clear();
-        if (tarefa.CategoriasIds != null && tarefa.CategoriasIds.Any())
+        if (tarefa.CategoriasIds?.Any() == true)
         {
             var categorias = await _context.Categorias
-                .Where(c => tarefa.CategoriasIds.Contains(c.Id) && c.UtilizadorId == utilizadorId)
+                .Where(c => tarefa.CategoriasIds.Contains(c.Id) && 
+                           c.UtilizadorId == utilizadorId)
                 .ToListAsync();
             foreach (var cat in categorias)
                 original.Categorias.Add(cat);
@@ -224,34 +254,39 @@ public class TarefasController : Controller
         return Ok();
     }
 
-
+    /// <summary>
+    /// Atualiza todas as tarefas com um determinado título
+    /// </summary>
     [HttpPost]
-    public async Task<IActionResult> EditarTodasComTitulo([FromBody] EditarTodasViewModel tarefa)
+    public async Task<IActionResult> EditarTodasComTitulo(
+        [FromBody] EditarTodasViewModel tarefa)
     {
         var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
         if (utilizadorId == null) return Unauthorized();
 
-        if (string.IsNullOrEmpty(tarefa.TituloOriginal) || string.IsNullOrEmpty(tarefa.Titulo))
+        if (string.IsNullOrEmpty(tarefa.TituloOriginal) || 
+            string.IsNullOrEmpty(tarefa.Titulo))
             return BadRequest("Título obrigatório.");
 
-        // Obter todas as tarefas com esse título original
         var tarefas = await _context.Tarefas
-            .Where(t => t.UtilizadorId == utilizadorId && t.Titulo == tarefa.TituloOriginal)
+            .Where(t => t.UtilizadorId == utilizadorId && 
+                       t.Titulo == tarefa.TituloOriginal)
             .Include(t => t.Categorias)
             .ToListAsync();
 
         if (!tarefas.Any())
             return NotFound("Nenhuma tarefa encontrada com esse título.");
 
-        // Obter as categorias a associar
         var categorias = new List<Categoria>();
-        if (tarefa.CategoriasIds != null && tarefa.CategoriasIds.Any())
+        if (tarefa.CategoriasIds?.Any() == true)
         {
             categorias = await _context.Categorias
-                .Where(c => tarefa.CategoriasIds.Contains(c.Id) && c.UtilizadorId == utilizadorId)
+                .Where(c => tarefa.CategoriasIds.Contains(c.Id) && 
+                           c.UtilizadorId == utilizadorId)
                 .ToListAsync();
         }
 
+        // Atualiza todas as tarefas encontradas
         foreach (var t in tarefas)
         {
             t.Titulo = tarefa.Titulo;
@@ -259,7 +294,6 @@ public class TarefasController : Controller
             t.Recorrencia = tarefa.Recorrencia;
             t.DataFimRecorrencia = tarefa.DataFimRecorrencia;
 
-            // Atualizar as categorias da tarefa
             t.Categorias.Clear();
             foreach (var cat in categorias)
             {
@@ -271,7 +305,9 @@ public class TarefasController : Controller
         return Ok();
     }
 
-
+    /// <summary>
+    /// Remove uma tarefa específica
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Apagar([FromBody] int id)
     {
@@ -279,13 +315,17 @@ public class TarefasController : Controller
         if (utilizadorId == null) return Unauthorized();
 
         var tarefa = await _context.Tarefas.FindAsync(id);
-        if (tarefa == null || tarefa.UtilizadorId != utilizadorId) return NotFound();
+        if (tarefa == null || tarefa.UtilizadorId != utilizadorId) 
+            return NotFound();
 
         _context.Tarefas.Remove(tarefa);
         await _context.SaveChangesAsync();
         return Ok();
     }
 
+    /// <summary>
+    /// Remove todas as tarefas com um determinado título
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> ApagarTodasComTitulo([FromBody] string titulo)
     {
@@ -293,7 +333,8 @@ public class TarefasController : Controller
         if (utilizadorId == null) return Unauthorized();
 
         var tarefas = await _context.Tarefas
-            .Where(t => t.UtilizadorId == utilizadorId && t.Titulo == titulo)
+            .Where(t => t.UtilizadorId == utilizadorId && 
+                       t.Titulo == titulo)
             .ToListAsync();
 
         if (!tarefas.Any()) return NotFound();
@@ -302,10 +343,11 @@ public class TarefasController : Controller
         await _context.SaveChangesAsync();
         return Ok();
     }
-
-
 }
 
+/// <summary>
+/// ViewModel para edição em massa de tarefas
+/// </summary>
 public class EditarTodasViewModel
 {
     public string TituloOriginal { get; set; }
@@ -314,6 +356,5 @@ public class EditarTodasViewModel
     public DateTime Data { get; set; }
     public TipoRecorrencia Recorrencia { get; set; }
     public DateTime? DataFimRecorrencia { get; set; }
-
     public List<int> CategoriasIds { get; set; } = new();
 }

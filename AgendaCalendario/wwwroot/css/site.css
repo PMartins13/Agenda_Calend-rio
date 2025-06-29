@@ -1,27 +1,45 @@
+/* Define o tamanho base da fonte para todo o documento */
 html {
   font-size: 14px;
 }
 
+/* Media query para ecrãs maiores que 768px (tablets e computadores) */
 @media (min-width: 768px) {
   html {
+    /* Aumenta o tamanho da fonte para melhor legibilidade em ecrãs maiores */
     font-size: 16px;
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+/* Estilização do efeito de foco para elementos interativos */
+.btn:focus, 
+.btn:active:focus, 
+.btn-link.nav-link:focus, 
+.form-control:focus, 
+.form-check-input:focus {
+  /* Cria um contorno duplo quando o elemento está em foco:
+     - Primeiro contorno: branco com 0.1rem de espessura
+     - Segundo contorno: azul (#258cfb) com 0.25rem de espessura */
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+/* Estilização para dias selecionados no calendário FullCalendar */
 .fc-daygrid-day.selected-day {
+  /* Define um fundo amarelo claro para o dia selecionado
+     !important é usado para garantir que esta regra tem precedência */
   background-color: #ffe699 !important;
+  /* Adiciona uma borda dourada escura ao redor do dia selecionado */
   border: 2px solid #d4aa00;
 }
 
+/* Configuração básica do elemento html para garantir altura mínima */
 html {
   position: relative;
   min-height: 100%;
 }
 
+/* Configuração do corpo da página */
 body {
+  /* Adiciona uma margem inferior de 60px para acomodar o rodapé */
   margin-bottom: 60px;
 }

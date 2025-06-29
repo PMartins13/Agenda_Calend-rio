@@ -1,14 +1,18 @@
 ﻿@{
+    // Define o título da página
     ViewData["Title"] = "Sobre o Projeto";
 }
 
+<!-- Estilo para o gradiente de fundo -->
 <style>
     body {
         background: linear-gradient(to top, #e3f2fd, #ffffff);
     }
 </style>
 
+<!-- Container principal -->
 <div class="container py-5">
+    <!-- Card com informações básicas do projeto -->
     <div class="card shadow mb-4">
         <div class="card-body bg-white">
             <h2><i class="bi bi-journal-code me-2"></i> Sobre o Projeto</h2>
@@ -18,9 +22,9 @@
         </div>
     </div>
 
+    <!-- Accordion com detalhes do projeto -->
     <div class="accordion" id="accordionProjeto">
-
-        <!-- Autores -->
+        <!-- Seção Autores -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingAutores">
                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAutores">
@@ -30,13 +34,17 @@
             <div id="collapseAutores" class="accordion-collapse collapse show" data-bs-parent="#accordionProjeto">
                 <div class="accordion-body">
                     <div class="row text-center">
+                        <!-- Autor 1 -->
                         <div class="col-md-6 mb-4">
-                            <img src="~/images/duarte.jpg" class="rounded-circle border border-3 border-dark shadow" alt="Foto de Duarte" style="width: 140px; height: 140px; object-fit: cover;">
+                            <img src="~/images/duarte.jpg" class="rounded-circle border border-3 border-dark shadow" 
+                                 alt="Foto de Duarte" style="width: 140px; height: 140px; object-fit: cover;">
                             <p class="mt-2 mb-0 fw-bold">Duarte Rosa Gonçalves</p>
                             <p class="text-muted">Nº 24846</p>
                         </div>
+                        <!-- Autor 2 -->
                         <div class="col-md-6 mb-4">
-                            <img src="~/images/pedro.png" class="rounded-circle border border-3 border-dark shadow" alt="Foto de Pedro" style="width: 140px; height: 140px; object-fit: cover;">
+                            <img src="~/images/pedro.png" class="rounded-circle border border-3 border-dark shadow" 
+                                 alt="Foto de Pedro" style="width: 140px; height: 140px; object-fit: cover;">
                             <p class="mt-2 mb-0 fw-bold">Pedro Martins</p>
                             <p class="text-muted">Nº 24852</p>
                         </div>
@@ -45,7 +53,7 @@
             </div>
         </div>
 
-        <!-- Tecnologias -->
+        <!-- Seção Tecnologias -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingTecnologias">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTecnologias">
@@ -66,7 +74,7 @@
             </div>
         </div>
 
-        <!-- Recursos -->
+        <!-- Seção Recursos -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingRecursos">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRecursos">
@@ -84,7 +92,7 @@
             </div>
         </div>
 
-        <!-- Utilizadores -->
+        <!-- Seção Utilizadores -->
         <div class="accordion-item">
             <h2 class="accordion-header" id="headingUtilizadores">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUtilizadores">
@@ -94,14 +102,11 @@
             <div id="collapseUtilizadores" class="accordion-collapse collapse" data-bs-parent="#accordionProjeto">
                 <div class="accordion-body">
                     <ul>
-                        <li><strong>admin@teste.com</strong> 
-                        <li><strong>utilizador@teste.com</strong> 
+                        <li><strong>admin@teste.com</strong></li>
+                        <li><strong>utilizador@teste.com</strong></li>
                     </ul>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
-
-

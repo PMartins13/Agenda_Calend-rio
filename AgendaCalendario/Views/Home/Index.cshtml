@@ -1,7 +1,7 @@
 ﻿@{
+    // Define o título da página inicial
     ViewData["Title"] = "Bem-vindo à Agenda Calendário";
 }
-
 
 @if (TempData["ContaApagada"] != null)
 {
@@ -12,26 +12,33 @@
 
 <style>
     .hero {
+        // Seção hero com gradiente suave
         background: linear-gradient(to right, #e3f2fd, #ffffff);
         padding: 80px 20px;
     }
     .hero-img {
+        // Imagem hero com bordas arredondadas e sombra
         max-width: 100%;
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     }
 </style>
 
+<!-- Seção Hero -->
 <div class="container-fluid hero">
     <div class="container">
         <div class="row align-items-center">
+            <!-- Coluna de texto -->
             <div class="col-md-6 text-center text-md-start">
+                <!-- Título principal -->
                 <h1 class="display-4 fw-bold text-primary mb-4">
                     <i class="bi bi-calendar-check"></i> Agenda Calendário
                 </h1>
+                <!-- Subtítulo -->
                 <p class="lead text-secondary mb-4">
                     Organiza o teu dia, tarefas e objetivos com uma agenda simples, intuitiva e visual.
                 </p>
+                <!-- Botões de ação -->
                 <a class="btn btn-outline-primary btn-lg me-3 px-4" asp-controller="Conta" asp-action="Login">
                     <i class="bi bi-box-arrow-in-right"></i> Entrar
                 </a>
@@ -39,6 +46,7 @@
                     <i class="bi bi-person-plus"></i> Criar Conta
                 </a>
             </div>
+            <!-- Coluna da imagem -->
             <div class="col-md-6 text-center mt-5 mt-md-0">
                 <img src="~/images/mockup.png" alt="Mockup" class="hero-img">
             </div>
@@ -46,18 +54,22 @@
     </div>
 </div>
 
+<!-- Seção de recursos -->
 <div class="container my-5">
     <div class="row text-center">
+        <!-- Gestão de Tarefas -->
         <div class="col-md-4 mb-4">
             <i class="bi bi-alarm fs-1 text-success"></i>
             <h5 class="mt-3">Gestão de Tarefas</h5>
             <p class="text-muted">Adiciona, edita e organiza as tuas tarefas com simplicidade.</p>
         </div>
+        <!-- Calendário Interativo -->
         <div class="col-md-4 mb-4">
             <i class="bi bi-calendar-event fs-1 text-info"></i>
             <h5 class="mt-3">Calendário Interativo</h5>
             <p class="text-muted">Visualiza os teus compromissos com destaque por dia.</p>
         </div>
+        <!-- Categorias Personalizadas -->
         <div class="col-md-4 mb-4">
             <i class="bi bi-tags fs-1 text-warning"></i>
             <h5 class="mt-3">Categorias Personalizadas</h5>

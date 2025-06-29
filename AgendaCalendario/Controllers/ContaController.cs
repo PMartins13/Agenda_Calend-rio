@@ -7,12 +7,12 @@ using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace AgendaCalendario.Controllers
 {
+    /// <summary>
+    /// Controlador responsável pela gestão de contas de utilizador
+    /// </summary>
     public class ContaController : Controller
     {
         private readonly AgendaDbContext _context;
@@ -22,17 +22,21 @@ namespace AgendaCalendario.Controllers
             _context = context;
         }
 
-        // GET: Conta/Registar
-        public IActionResult Registar()
-        {
-            return View();
-        }
+        #region Autenticação e Registo
 
-        // POST: Conta/Registar
+        /// <summary>
+        /// Exibe formulário de registo
+        /// </summary>
+        public IActionResult Registar() => View();
+
+        /// <summary>
+        /// Processa o registo de novo utilizador
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registar(string nome, string email, string password)
         {
+            // Validações
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
                 ModelState.AddModelError("", "Email e password são obrigatórios.");
@@ -44,18 +48,16 @@ namespace AgendaCalendario.Controllers
                 ModelState.AddModelError("", "Este email já está registado.");
                 return View();
             }
-            
+
+            // Validação complexa da password
             if (!Regex.IsMatch(password, @"^(?=(?:.*[A-Z]){1,})(?=(?:.*\d){4,})(?=(?:.*[!@#$%^&*()_\-=\[\]{};':""\\|,.<>\/?]){1,}).{8,}$"))
             {
-                ModelState.AddModelError("", "Password inválida (back-end): requisitos mínimos não cumpridos.");
+                ModelState.AddModelError("", "Password inválida: requisitos mínimos não cumpridos.");
                 return View();
             }
 
-
-            var hash = ObterHash(password);
-
+            // Criação do utilizador
             var codigo = new Random().Next(100000, 999999).ToString();
-
             var novo = new Utilizador
             {
                 Nome = nome,
@@ -68,19 +70,21 @@ namespace AgendaCalendario.Controllers
             _context.Utilizadores.Add(novo);
             await _context.SaveChangesAsync();
 
+            // Envio do email de confirmação
             await EnviarEmailConfirmacao(email, codigo);
 
             TempData["EmailParaConfirmar"] = email;
             return RedirectToAction("ConfirmarEmail");
         }
 
-        // GET: Conta/Login
-        public IActionResult Login()
-        {
-            return View();
-        }
+        /// <summary>
+        /// Exibe formulário de login
+        /// </summary>
+        public IActionResult Login() => View();
 
-        // POST: Conta/Login
+        /// <summary>
+        /// Processa tentativa de login
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password)
@@ -101,20 +105,26 @@ namespace AgendaCalendario.Controllers
 
             if (!utilizador.EmailConfirmado)
             {
-                ModelState.AddModelError("", "Confirme o seu email antes de entrar.");
                 TempData["EmailParaConfirmar"] = email;
                 return RedirectToAction("ConfirmarEmail");
             }
 
-            // Login com sucesso: guardar dados na sessão
+            // Define dados da sessão
             HttpContext.Session.SetString("UtilizadorNome", utilizador.Nome);
             HttpContext.Session.SetInt32("UtilizadorId", utilizador.Id);
             HttpContext.Session.SetString("UtilizadorEmail", utilizador.Email);
-            HttpContext.Session.SetString("PerfilUtilizador", utilizador.PerfilUtilizador); 
+            HttpContext.Session.SetString("PerfilUtilizador", utilizador.PerfilUtilizador);
 
             return RedirectToAction("Index", "Calendario");
         }
-        
+
+        #endregion
+
+        #region Gestão de Perfil
+
+        /// <summary>
+        /// Exibe perfil do utilizador
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Perfil()
         {
@@ -124,15 +134,16 @@ namespace AgendaCalendario.Controllers
             var utilizador = await _context.Utilizadores.FindAsync(utilizadorId);
             if (utilizador == null) return NotFound();
 
-            var vm = new UtilizadorPerfilViewModel
+            return View(new UtilizadorPerfilViewModel
             {
                 Nome = utilizador.Nome,
                 Email = utilizador.Email
-            };
-
-            return View(vm);
+            });
         }
 
+        /// <summary>
+        /// Atualiza dados do perfil
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> Perfil(UtilizadorPerfilViewModel vm)
         {
@@ -148,33 +159,27 @@ namespace AgendaCalendario.Controllers
             utilizador.Email = vm.Email;
 
             if (!string.IsNullOrWhiteSpace(vm.NovaPassword))
-                utilizador.PasswordHash = ObterHash(vm.NovaPassword); 
+                utilizador.PasswordHash = ObterHash(vm.NovaPassword);
 
             await _context.SaveChangesAsync();
-
-            // Atualize a sessão com o novo nome
             HttpContext.Session.SetString("UtilizadorNome", utilizador.Nome);
 
             ViewBag.Mensagem = "Dados atualizados com sucesso!";
             return View(vm);
         }
 
-        
+        /// <summary>
+        /// Processa logout do utilizador
+        /// </summary>
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear(); // limpa a sessão atual
+            HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
-        
-        // Função auxiliar para encriptar password
-        private string ObterHash(string input)
-        {
-            using var sha = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(input);
-            var hash = sha.ComputeHash(bytes);
-            return BitConverter.ToString(hash).Replace("-", "").ToLower(); // gual ao SeedData
-        }
 
+        /// <summary>
+        /// Elimina conta do utilizador e todos os seus dados
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApagarConta()
@@ -200,21 +205,28 @@ namespace AgendaCalendario.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-    private async Task EnviarEmailConfirmacao(string destino, string codigo)
-    {
-        var smtp = new SmtpClient("smtp.gmail.com")
-        {
-            Port = 587,
-            Credentials = new NetworkCredential("agendacalendario.suporte@gmail.com", "bovf fhxb qvdy nkww"),
-            EnableSsl = true,
-        };
+        #endregion
 
-        var mail = new MailMessage
+        #region Confirmação de Email
+
+        /// <summary>
+        /// Envia email de confirmação
+        /// </summary>
+        private async Task EnviarEmailConfirmacao(string destino, string codigo)
         {
-            From = new MailAddress("agendacalendario.suporte@gmail.com", "Agenda Calendário"),
-            Subject = "Confirmação de Email - Agenda Calendário",
-            IsBodyHtml = true,
-            Body = $@"
+            var smtp = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("agendacalendario.suporte@gmail.com", "bovf fhxb qvdy nkww"),
+                EnableSsl = true,
+            };
+
+            var mail = new MailMessage
+            {
+                From = new MailAddress("agendacalendario.suporte@gmail.com", "Agenda Calendário"),
+                Subject = "Confirmação de Email - Agenda Calendário",
+                IsBodyHtml = true,
+                Body = $@"
             <div style='font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #e3f2fd;border-radius:8px;padding:32px;background:#f9fbfd;'>
                 <h2 style='color:#1861ac;margin-bottom:16px;'>Bem-vindo à Agenda Calendário!</h2>
                 <p>Olá,</p>
@@ -230,36 +242,42 @@ namespace AgendaCalendario.Controllers
                 Cumprimentos,<br>
                 <strong>Equipa Agenda Calendário</strong></p>
             </div>"
-        };
+            };
 
-        mail.To.Add(destino);
+            mail.To.Add(destino);
 
-        await smtp.SendMailAsync(mail);
-    }
+            await smtp.SendMailAsync(mail);
+        }
 
-    [HttpGet]
-    public async Task<IActionResult> ReenviarCodigo(string email)
-    {
-        if (string.IsNullOrEmpty(email))
-            return RedirectToAction("Login");
+        /// <summary>
+        /// Reenvia código de confirmação
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> ReenviarCodigo(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return RedirectToAction("Login");
     
-        var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.Email == email);
-        if (utilizador == null)
-            return RedirectToAction("Login");
+            var utilizador = await _context.Utilizadores.FirstOrDefaultAsync(u => u.Email == email);
+            if (utilizador == null)
+                return RedirectToAction("Login");
     
-        // Gera novo código
-        var codigo = new Random().Next(100000, 999999).ToString();
-        utilizador.CodigoConfirmacao = codigo;
-        await _context.SaveChangesAsync();
+            // Gera novo código
+            var codigo = new Random().Next(100000, 999999).ToString();
+            utilizador.CodigoConfirmacao = codigo;
+            await _context.SaveChangesAsync();
     
-        // Envia email
-        await EnviarEmailConfirmacao(email, codigo);
+            // Envia email
+            await EnviarEmailConfirmacao(email, codigo);
     
-        TempData["EmailParaConfirmar"] = email;
-        TempData["CodigoReenviado"] = "Um novo código foi enviado para o seu email.";
-        return RedirectToAction("ConfirmarEmail");
-    }
+            TempData["EmailParaConfirmar"] = email;
+            TempData["CodigoReenviado"] = "Um novo código foi enviado para o seu email.";
+            return RedirectToAction("ConfirmarEmail");
+        }
 
+        /// <summary>
+        /// Exibe página de confirmação de email
+        /// </summary>
         [HttpGet]
         public IActionResult ConfirmarEmail()
         {
@@ -267,6 +285,9 @@ namespace AgendaCalendario.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Processa confirmação de email
+        /// </summary>
         [HttpPost]
         public async Task<IActionResult> ConfirmarEmail(string email, string codigo)
         {
@@ -283,6 +304,19 @@ namespace AgendaCalendario.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Login");
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gera hash SHA256 para password
+        /// </summary>
+        private string ObterHash(string input)
+        {
+            using var sha = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(input);
+            var hash = sha.ComputeHash(bytes);
+            return BitConverter.ToString(hash).Replace("-", "").ToLower();
         }
     }
 }

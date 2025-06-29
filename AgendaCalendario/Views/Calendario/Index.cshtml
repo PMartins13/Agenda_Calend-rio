@@ -1,22 +1,26 @@
 ﻿@{
+    // Define o título da página no layout
     ViewData["Title"] = "Calendário";
 }
 
+<!-- Container principal com espaçamento superior -->
 <div class="container mt-4">
     <div class="row">
-        <!-- Calendário -->
+        <!-- Seção do calendário - metade esquerda em desktop -->
         <div class="col-md-6">
             <h2 class="text-center mb-4">O Meu Calendário</h2>
+            <!-- Elemento onde o FullCalendar será inicializado -->
             <div id="calendar"></div>
         </div>
 
-        <!-- Painel de tarefas -->
+        <!-- Seção de tarefas - metade direita em desktop -->
         <div class="col-md-6">
             <h4 class="mb-3">Tarefas</h4>
+            <!-- Botões principais de ação -->
             <button class="btn btn-primary mb-3" id="btnAdicionarTarefa">Adicionar +</button>
             <button class="btn btn-outline-secondary mb-3" id="btnCriarCategoria">Criar Categoria +</button>
             
-            <!-- Modal de Adicionar Tarefa -->
+            <!-- Modal para adicionar nova tarefa com todos os campos necessários -->
             <div class="modal fade" id="modalTarefa" tabindex="-1" aria-labelledby="modalTarefaLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -26,24 +30,29 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                             </div>
                             <div class="modal-body">
+                                <!-- Campo título -->
                                 <div class="mb-3">
                                     <label for="titulo" class="form-label">Título *</label>
                                     <input type="text" class="form-control" id="titulo" required>
                                 </div>
+                                <!-- Campo descrição -->
                                 <div class="mb-3">
                                     <label for="descricao" class="form-label">Descrição</label>
                                     <textarea class="form-control" id="descricao" rows="3"></textarea>
                                 </div>
+                                <!-- Campo data -->
                                 <div class="mb-3">
                                     <label for="data" class="form-label">Data *</label>
                                     <input type="date" class="form-control" id="data" required>
                                 </div>
+                                <!-- Seleção de categoria(s) -->
                                 <div class="mb-3">
                                     <label for="categoriaId" class="form-label">Categoria</label>
                                     <select id="categoriaId" class="form-select w-100" multiple>
                                         <option value="">(Sem categoria)</option>
                                     </select>
                                 </div>
+                                <!-- Seleção de recorrência -->
                                 <div class="mb-3">
                                     <label for="recorrencia" class="form-label">Recorrência</label>
                                     <select id="recorrencia" name="Recorrencia" class="form-select">
@@ -53,6 +62,7 @@
                                         <option value="3">Mensal</option>
                                     </select>
                                 </div>
+                                <!-- Data fim recorrência (visível apenas quando há recorrência) -->
                                 <div class="mb-3" id="divDataFimRecorrencia" style="display:none;">
                                     <label for="dataFimRecorrencia" class="form-label">Data de fim da recorrência</label>
                                     <input type="date" id="dataFimRecorrencia" name="DataFimRecorrencia" class="form-control" />
@@ -66,7 +76,7 @@
                 </div>
             </div>
 
-            <!-- Modal de Criar Categoria -->
+            <!-- Modal para criar nova categoria -->
             <div class="modal fade" id="modalCategoria" tabindex="-1" aria-labelledby="modalCategoriaLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -76,10 +86,12 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                             </div>
                             <div class="modal-body">
+                                <!-- Campo nome da categoria -->
                                 <div class="mb-3">
                                     <label for="categoriaNome" class="form-label">Título</label>
                                     <input type="text" class="form-control" id="categoriaNome" required>
                                 </div>
+                                <!-- Seletor de cor da categoria -->
                                 <div class="mb-3">
                                     <label for="categoriaCor" class="form-label">Cor</label>
                                     <input type="color" class="form-control form-control-color" id="categoriaCor" value="#007bff" title="Escolher cor">
@@ -93,7 +105,7 @@
                 </div>
             </div>
             
-            <!-- Modal Editar Tarefa -->
+            <!-- Modal para editar tarefa existente -->
             <div class="modal fade" id="modalEditarTarefa" tabindex="-1" aria-labelledby="modalEditarTarefaLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -103,8 +115,10 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                             </div>
                             <div class="modal-body">
+                                <!-- Campos ocultos para ID e título original -->
                                 <input type="hidden" id="editId">
                                 <input type="hidden" id="editTituloOriginal">
+                                <!-- Campos de edição similares aos de criação -->
                                 <div class="mb-3">
                                     <label for="editTitulo" class="form-label">Título *</label>
                                     <input type="text" class="form-control" id="editTitulo" required>
@@ -121,7 +135,7 @@
                                     <label for="editCategoriaId" class="form-label">Categoria</label>
                                     <select id="editCategoriaId" class="form-select w-100" multiple>
                                         <option value="">(Sem categoria)</option>
-                                    </select>
+                                    </select> 
                                 </div>
                                 <div class="mb-3">
                                     <label for="editRecorrencia" class="form-label">Recorrência</label>
@@ -137,6 +151,7 @@
                                     <input type="date" id="editDataFimRecorrencia" name="DataFimRecorrencia" class="form-control" />
                                 </div>
                             </div>
+                            <!-- Botões de ação para tarefa existente -->
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger" id="btnApagarTarefa">Eliminar</button>
                                 <button type="button" class="btn btn-danger" id="btnApagarTodasTarefas">Eliminar Todas</button>
@@ -148,7 +163,7 @@
                 </div>
             </div>
             
-            <!-- Modal de Editar Categoria -->
+            <!-- Modal para editar categoria existente -->
             <div class="modal fade" id="modalEditarCategoria" tabindex="-1" aria-labelledby="modalEditarCategoriaLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -158,6 +173,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                             </div>
                             <div class="modal-body">
+                                <!-- Campo oculto para ID da categoria -->
                                 <input type="hidden" id="modalEditCategoriaId">
                                 <div class="mb-3">
                                     <label for="modalEditCategoriaNome" class="form-label">Título</label>
@@ -176,8 +192,7 @@
                 </div>
             </div>
 
-
-
+            <!-- Container para lista de tarefas do dia selecionado -->
             <div id="painelTarefas">
                 <!-- Tarefas de um dia específico vão aparecer aqui -->
             </div>
@@ -185,10 +200,10 @@
     </div>
 </div>
 
+<!-- Seção de scripts necessários -->
 @section Scripts {
+    <!-- FullCalendar para interface do calendário -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <!-- Script personalizado para gestão de tarefas -->
     <script src="~/js/tarefas.js"></script>
 }
-
-
-

@@ -2,56 +2,58 @@ using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using AgendaCalendario.Data;
 
+// Cria o builder da aplicação
 var builder = WebApplication.CreateBuilder(args);
 
-// Liga o DbContext à connection string definida no appsettings.json
+// Configura o Entity Framework com SQLite
 builder.Services.AddDbContext<AgendaDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Adiciona os controladores com views (MVC).
-builder.Services.AddControllersWithViews();
-builder.Services.AddSession();
+// Adiciona serviços essenciais
+builder.Services.AddControllersWithViews(); // Suporte MVC
+builder.Services.AddSession();              // Gerenciamento de sessão
+builder.Services.AddEndpointsApiExplorer(); // Documentação API
+builder.Services.AddSwaggerGen();           // Gerador Swagger
 
-// Adiciona suporte ao Swagger e API Explorer
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+// Constrói a aplicação
 var app = builder.Build();
 
-// Configuração do pipeline HTTP
+// Configura o ambiente de produção
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseExceptionHandler("/Home/Error"); // Página de erro
+    app.UseHsts();                         // Segurança HTTPS
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+// Pipeline de middleware HTTP
+app.UseHttpsRedirection();    // Força HTTPS
+app.UseStaticFiles();         // Serve arquivos estáticos
+app.UseRouting();            // Configura rotas
+app.UseSession();            // Habilita sessões
 
-app.UseRouting();
-app.UseSession(); // A sessão tem de estar disponível antes de usar o middleware que acede à sessão
-
-// Middleware do Swagger só pode aceder à sessão depois de UseSession()
+// Middleware de autorização do Swagger
 app.UseMiddleware<AgendaCalendario.Middleware.SwaggerAuthorizationMiddleware>();
 
+// Configuração do Swagger
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgendaCalendario API V1");
-    c.RoutePrefix = "swagger"; // Acede a partir de /swagger
+    c.RoutePrefix = "swagger"; // URL de acesso
 });
 
-app.UseAuthorization();
+app.UseAuthorization();      // Middleware de autorização
 
-// Garante que os controladores de API são mapeados corretamente
-app.MapControllers();
+// Mapeia endpoints
+app.MapControllers();        // Para controllers API
 
-// Controlador MVC padrão
+// Define rota MVC padrão
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// ✅ Inicializa a base de dados com dados de seed
+// Inicializa dados na base de dados
 SeedData.Inicializar(app);
 
+// Inicia a aplicação
 app.Run();

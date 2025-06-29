@@ -1,5 +1,13 @@
-﻿let dataSelecionada = new Date().toISOString().split("T")[0];
+﻿/**
+ * Variável global para armazenar a data atualmente selecionada
+ * Inicializada com a data atual no formato ISO (YYYY-MM-DD)
+ */
+let dataSelecionada = new Date().toISOString().split("T")[0];
 
+/**
+ * Carrega as tarefas para uma data específica através de uma chamada AJAX
+ * @param {string} data - Data no formato YYYY-MM-DD
+ */
 function carregarTarefas(data) {
     fetch(`/Tarefas/PorData?data=${data}`)
         .then(res => res.json())
@@ -8,18 +16,26 @@ function carregarTarefas(data) {
         });
 }
 
+/**
+ * Apresenta as tarefas no painel, organizadas por categorias
+ * @param {Array} tarefas - Array de objetos com as tarefas
+ */
 function mostrarTarefas(tarefas) {
     const painel = document.getElementById('painelTarefas');
     painel.innerHTML = '';
 
+    // Verifica se existem tarefas para apresentar
     if (tarefas.length === 0) {
         painel.innerHTML = '<p>Sem tarefas para este dia.</p>';
         return;
     }
 
+    // Objeto para agrupar tarefas por categoria
     const categorias = {};
 
+    // Organiza as tarefas por categorias
     tarefas.forEach(tarefa => {
+        // Processa tarefas com categorias
         tarefa.categorias.forEach(cat => {
             if (!categorias[cat.id]) {
                 categorias[cat.id] = {
@@ -32,6 +48,7 @@ function mostrarTarefas(tarefas) {
             categorias[cat.id].tarefas.push(tarefa);
         });
 
+        // Processa tarefas sem categoria
         if (!tarefa.categorias.length) {
             if (!categorias.null) {
                 categorias.null = {
@@ -45,19 +62,23 @@ function mostrarTarefas(tarefas) {
         }
     });
 
+    // Cria blocos visuais para cada categoria
     for (const [_, info] of Object.entries(categorias)) {
         const id = info.id;
         const nome = info.nome;
         const cor = info.cor;
         const lista = info.tarefas;
 
+        // Cria o contentor para a categoria
         const bloco = document.createElement('div');
         bloco.className = 'mb-3 p-2 border rounded';
         bloco.style.borderLeft = `8px solid ${cor}`;
         bloco.style.backgroundColor = cor + '10';
 
+        // Cria a lista de tarefas
         const ul = document.createElement('ul');
 
+        // Adiciona cada tarefa à lista
         lista.forEach(t => {
             const li = document.createElement('li');
             li.innerHTML = `<strong>${t.titulo}</strong><br/><small>${t.descricao || ''}</small>`;
@@ -66,6 +87,7 @@ function mostrarTarefas(tarefas) {
             ul.appendChild(li);
         });
 
+        // Adiciona o cabeçalho com os botões de gestão
         bloco.innerHTML = `
             <h5 class="d-flex justify-content-between align-items-center" style="color:${cor};">
                 ${nome}
@@ -84,7 +106,10 @@ function mostrarTarefas(tarefas) {
     }
 }
 
-
+/**
+ * Carrega as categorias disponíveis para um elemento select
+ * @param {string} targetSelectId - ID do elemento select a ser preenchido
+ */
 function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
     fetch("/Categorias/Minhas")
         .then(res => res.json())
@@ -92,6 +117,7 @@ function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
             const select = document.getElementById(targetSelectId);
             select.innerHTML = '';
 
+            // Preenche o select com as categorias
             categorias.forEach(cat => {
                 const opt = document.createElement("option");
                 opt.value = cat.id;
@@ -99,11 +125,15 @@ function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
                 select.appendChild(opt);
             });
 
-            // torna múltipla
+            // Configura o select para seleção múltipla
             select.setAttribute("multiple", true);
         });
 }
 
+/**
+ * Carrega e apresenta a lista de categorias na interface
+ * Inclui botões para editar e eliminar cada categoria
+ */
 function carregarCategoriasLista() {
     fetch("/Categorias/Minhas")
         .then(res => res.json())
@@ -131,19 +161,27 @@ function carregarCategoriasLista() {
         });
 }
 
+/**
+ * Abre o modal de edição de tarefa com os dados carregados
+ * @param {number} tarefaId - ID da tarefa a ser editada
+ */
 function abrirModalEditar(tarefaId) {
     fetch(`/Tarefas/Detalhes?id=${tarefaId}`)
         .then(res => res.json())
         .then(tarefa => {
+            // Preenche os campos do formulário com os dados da tarefa
             document.getElementById("editId").value = tarefa.id;
             document.getElementById("editTitulo").value = tarefa.titulo;
             document.getElementById("editDescricao").value = tarefa.descricao;
             document.getElementById("editData").value = tarefa.data.split("T")[0];
-            // Esta linha Ã© ESSENCIAL:
             document.getElementById("editTituloOriginal").value = tarefa.titulo;
 
+            // Configura campos de recorrência
             document.getElementById("editDataFimRecorrencia").value = tarefa.dataFimRecorrencia?.split("T")[0] || "";
-            document.getElementById("divEditDataFimRecorrencia").style.display = tarefa.recorrencia && tarefa.recorrencia !== 0 ? "block" : "none";
+            document.getElementById("divEditDataFimRecorrencia").style.display = 
+                tarefa.recorrencia && tarefa.recorrencia !== 0 ? "block" : "none";
+
+            // Configura o evento de alteração da recorrência
             const editRecorrenciaInput = document.getElementById("editRecorrencia");
             if (editRecorrenciaInput) {
                 editRecorrenciaInput.addEventListener("change", function () {
@@ -151,10 +189,9 @@ function abrirModalEditar(tarefaId) {
                     divFim.style.display = this.value === "0" ? "none" : "block";
                 });
             }
+
+            // Carrega as categorias e seleciona as associadas à tarefa
             carregarCategoriasDropdown("editCategoriaId");
-
-            const modal = new bootstrap.Modal(document.getElementById("modalEditarTarefa"));
-
             setTimeout(() => {
                 const select = document.getElementById("editCategoriaId");
                 Array.from(select.options).forEach(opt => {
@@ -162,11 +199,17 @@ function abrirModalEditar(tarefaId) {
                 });
             }, 200);
             
+            // Mostra o modal
+            const modal = new bootstrap.Modal(document.getElementById("modalEditarTarefa"));
             modal.show();
         });
 }
 
-// Adicione esta função se ainda não existir:
+/**
+ * Apresenta um modal de confirmação personalizado
+ * @param {string} message - Mensagem a ser apresentada
+ * @param {Function} onConfirm - Função a ser executada após confirmação
+ */
 function showConfirm(message, onConfirm) {
     $('#confirmModalMessage').text(message);
     $('#confirmModal').modal('show');
@@ -178,22 +221,31 @@ function showConfirm(message, onConfirm) {
     });
 }
 
-// Substitua todos os alert() por showError()
+/**
+ * Apresenta uma mensagem de erro em formato toast
+ * @param {string} message - Mensagem de erro a ser apresentada
+ */
 function showError(message) {
     $('#successToastMessage').text(message);
     var toast = new bootstrap.Toast(document.getElementById('successToast'));
     toast.show();
 }
 
+/**
+ * Configuração inicial e gestão de eventos quando o DOM estiver carregado
+ */
 document.addEventListener('DOMContentLoaded', function () {
+    // Inicialização
     carregarTarefas(dataSelecionada);
     carregarCategoriasLista();
 
+    // Configuração do campo de recorrência
     document.getElementById("recorrencia").addEventListener("change", function () {
         const divFim = document.getElementById("divDataFimRecorrencia");
         divFim.style.display = this.value === "0" ? "none" : "block";
     });
 
+    // Configuração do calendário FullCalendar
     const calendarEl = document.getElementById('calendar');
     let calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -204,9 +256,10 @@ document.addEventListener('DOMContentLoaded', function () {
             right: ''
         },
         events: function(fetchInfo, successCallback, failureCallback) {
-            const inicio = fetchInfo.startStr.split("T")[0]; // só a parte yyyy-MM-dd
+            const inicio = fetchInfo.startStr.split("T")[0];
             const fim = fetchInfo.endStr.split("T")[0];
 
+            // Carrega eventos do período selecionado
             fetch(`/Tarefas/PorIntervalo?inicio=${inicio}&fim=${fim}`)
                 .then(response => {
                     if (!response.ok) throw new Error("Erro ao buscar dados.");
@@ -218,6 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
         dateClick: function (info) {
             dataSelecionada = info.dateStr;
             carregarTarefas(dataSelecionada);
+            // Atualiza visual do dia selecionado
             document.querySelectorAll('.fc-daygrid-day').forEach(el => {
                 el.classList.remove('selected-day');
             });
@@ -226,6 +280,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     calendar.render();
 
+    /**
+     * Evento de clique no botão de adicionar tarefa
+     * Prepara e mostra o modal de nova tarefa
+     */
     document.getElementById("btnAdicionarTarefa").addEventListener("click", () => {
         document.getElementById("formTarefa").reset();
         document.getElementById("data").value = dataSelecionada;
@@ -234,6 +292,9 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.show();
     });
 
+    /**
+     * Gestão do formulário de criação de tarefa
+     */
     document.getElementById("formTarefa").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -241,11 +302,13 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("titulo").value,
             descricao: document.getElementById("descricao").value,
             data: document.getElementById("data").value,
-            categoriasIds: Array.from(document.getElementById("categoriaId").selectedOptions).map(opt => parseInt(opt.value)),
+            categoriasIds: Array.from(document.getElementById("categoriaId").selectedOptions)
+                            .map(opt => parseInt(opt.value)),
             recorrencia: parseInt(document.getElementById("recorrencia").value),
             dataFimRecorrencia: document.getElementById("dataFimRecorrencia").value || null
         };
 
+        // Envia pedido para criar nova tarefa
         fetch("/Tarefas/Criar", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -260,12 +323,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão do botão e modal de criação de categoria
+     */
     document.getElementById("btnCriarCategoria").addEventListener("click", () => {
         document.getElementById("formCategoria").reset();
         const modal = new bootstrap.Modal(document.getElementById("modalCategoria"));
         modal.show();
     });
 
+    /**
+     * Gestão do formulário de criação de categoria
+     */
     document.getElementById("formCategoria").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -290,6 +359,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão do formulário de edição de tarefa
+     */
     document.getElementById("formEditarTarefa").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -298,7 +370,8 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
             data: document.getElementById("editData").value,
-            categoriasIds: Array.from(document.getElementById("editCategoriaId").selectedOptions).map(opt => parseInt(opt.value)),
+            categoriasIds: Array.from(document.getElementById("editCategoriaId").selectedOptions)
+                            .map(opt => parseInt(opt.value)),
             recorrencia: parseInt(document.getElementById("editRecorrencia").value),
             dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
         };
@@ -317,6 +390,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão do botão de eliminar tarefa
+     */
     document.getElementById("btnApagarTarefa").addEventListener("click", () => {
         const id = document.getElementById("editId").value;
 
@@ -336,6 +412,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão do botão de eliminar todas as tarefas com o mesmo título
+     */
     document.getElementById("btnApagarTodasTarefas").addEventListener("click", () => {
         const titulo = document.getElementById("editTitulo").value;
 
@@ -355,13 +434,17 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão do botão de guardar alterações em todas as tarefas com o mesmo título
+     */
     document.getElementById("btnGuardarTodasTarefas").addEventListener("click", () => {
         const tarefa = {
             tituloOriginal: document.getElementById("editTituloOriginal").value,
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
             data: document.getElementById("editData").value,
-            categoriasIds: Array.from(document.getElementById("editCategoriaId").selectedOptions).map(opt => parseInt(opt.value)),
+            categoriasIds: Array.from(document.getElementById("editCategoriaId").selectedOptions)
+                            .map(opt => parseInt(opt.value)),
             recorrencia: parseInt(document.getElementById("editRecorrencia").value),
             dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
         };
@@ -380,6 +463,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão do formulário de edição de categoria
+     */
     document.getElementById("formEditarCategoria").addEventListener("submit", function (e) {
         e.preventDefault();
 
@@ -404,9 +490,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    /**
+     * Gestão de eventos delegados para o painel de tarefas
+     * Lida com botões de editar e eliminar categorias
+     */
     document.getElementById("painelTarefas")?.addEventListener("click", function (e) {
         const target = e.target;
 
+        // Gestão do botão de editar categoria
         if (target.classList.contains("btnEditarCategoria")) {
             document.getElementById("modalEditCategoriaId").value = target.dataset.id;
             document.getElementById("modalEditCategoriaNome").value = target.dataset.nome;
@@ -416,6 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
             modal.show();
         }
 
+        // Gestão do botão de eliminar categoria
         if (target.classList.contains("btnApagarCategoria")) {
             const id = target.dataset.id;
 
@@ -426,8 +518,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify(id)
                 }).then(res => {
                     if (res.ok) {
-                        carregarCategoriasDropdown(); // opcional
-                        carregarTarefas(dataSelecionada); // recarregar vista
+                        carregarCategoriasDropdown(); // Atualiza dropdowns
+                        carregarTarefas(dataSelecionada); // Recarrega vista
                     } else {
                         res.text().then(msg => showError(msg));
                     }
@@ -436,4 +528,4 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-})
+}); // Fim do DOMContentLoaded
