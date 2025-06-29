@@ -123,6 +123,15 @@ function abrirModalEditar(tarefaId) {
             document.getElementById("editTitulo").value = tarefa.titulo;
             document.getElementById("editDescricao").value = tarefa.descricao;
             document.getElementById("editData").value = tarefa.data.split("T")[0];
+            document.getElementById("editDataFimRecorrencia").value = tarefa.dataFimRecorrencia?.split("T")[0] || "";
+            document.getElementById("divEditDataFimRecorrencia").style.display = tarefa.recorrencia && tarefa.recorrencia !== 0 ? "block" : "none";
+            const editRecorrenciaInput = document.getElementById("editRecorrencia");
+            if (editRecorrenciaInput) {
+                editRecorrenciaInput.addEventListener("change", function () {
+                    const divFim = document.getElementById("divEditDataFimRecorrencia");
+                    divFim.style.display = this.value === "0" ? "none" : "block";
+                });
+            }
             carregarCategoriasDropdown("editCategoriaId");
 
             setTimeout(() => {
@@ -157,14 +166,31 @@ document.addEventListener('DOMContentLoaded', function () {
     carregarTarefas(dataSelecionada);
     carregarCategoriasLista();
 
+    document.getElementById("recorrencia").addEventListener("change", function () {
+        const divFim = document.getElementById("divDataFimRecorrencia");
+        divFim.style.display = this.value === "0" ? "none" : "block";
+    });
+
     const calendarEl = document.getElementById('calendar');
-    const calendar = new FullCalendar.Calendar(calendarEl, {
+    let calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'pt',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: ''
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            const inicio = fetchInfo.startStr.split("T")[0]; // só a parte yyyy-MM-dd
+            const fim = fetchInfo.endStr.split("T")[0];
+
+            fetch(`/Tarefas/PorIntervalo?inicio=${inicio}&fim=${fim}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erro ao buscar dados.");
+                    return response.json();
+                })
+                .then(data => successCallback(data))
+                .catch(() => failureCallback());
         },
         dateClick: function (info) {
             dataSelecionada = info.dateStr;
@@ -249,7 +275,9 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
             data: document.getElementById("editData").value,
-            categoriaId: document.getElementById("editCategoriaId").value || null
+            categoriaId: document.getElementById("editCategoriaId").value || null,
+            recorrencia: parseInt(document.getElementById("editRecorrencia").value),
+            dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
         };
 
         fetch("/Tarefas/Editar", {
@@ -303,6 +331,54 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    document.getElementById("btnGuardarTodasTarefas").addEventListener("click", () => {
+        const tarefa = {
+            titulo: document.getElementById("editTitulo").value,
+            descricao: document.getElementById("editDescricao").value,
+            categoriaId: document.getElementById("editCategoriaId").value || null,
+            recorrencia: parseInt(document.getElementById("editRecorrencia").value),
+            dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
+        };
+
+        fetch("/Tarefas/EditarTodasComTitulo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tarefa)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                carregarTarefas(dataSelecionada);
+            } else {
+                alert("Erro ao editar todas as tarefas.");
+            }
+        });
+    });
+
+    document.getElementById("btnGuardarTodasTarefas").addEventListener("click", () => {
+        const tarefa = {
+            titulo: document.getElementById("editTitulo").value,
+            descricao: document.getElementById("editDescricao").value,
+            categoriaId: document.getElementById("editCategoriaId").value || null,
+            recorrencia: parseInt(document.getElementById("editRecorrencia").value),
+            dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
+        };
+        
+
+        fetch("/Tarefas/EditarTodasComTitulo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(tarefa)
+        }).then(res => {
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                carregarTarefas(dataSelecionada);
+            } else {
+                alert("Erro ao editar todas as tarefas.");
+            }
+        });
+    });
+
 
     document.getElementById("formEditarCategoria").addEventListener("submit", function (e) {
         e.preventDefault();

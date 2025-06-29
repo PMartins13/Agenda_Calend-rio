@@ -2,6 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AgendaCalendario.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http; 
 
 namespace AgendaCalendario.Controllers;
 
@@ -42,6 +47,45 @@ public class TarefasController : Controller
         return Json(tarefas);
     }
     
+    [HttpGet]
+    public async Task<IActionResult> PorIntervalo(string inicio, string fim)
+    {
+        var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+        if (utilizadorId == null)
+            return Unauthorized();
+
+        if (!DateTime.TryParse(inicio, out var dataInicio) || !DateTime.TryParse(fim, out var dataFim))
+            return BadRequest("Datas inválidas");
+
+        var tarefas = await _context.Tarefas
+            .Where(t => t.UtilizadorId == utilizadorId && t.Data.Date >= dataInicio.Date && t.Data.Date <= dataFim.Date)
+            .Include(t => t.Categoria)
+            .ToListAsync();
+
+        var eventos = tarefas.Select(t => new {
+            id = t.Id,
+            title = t.Titulo,
+            start = t.Data.ToString("yyyy-MM-dd"),
+            backgroundColor = t.Categoria?.Cor ?? "#999",
+            borderColor = t.Categoria?.Cor ?? "#999"
+        }).ToList();
+
+        // Background highlights nos dias com tarefas
+        var destaques = tarefas
+            .Select(t => t.Data.Date)
+            .Distinct()
+            .Select(d => new {
+                start = d.ToString("yyyy-MM-dd"),
+                display = "background",
+                backgroundColor = "#fdf3d6"
+            });
+
+        var todos = new List<object>();
+        todos.AddRange(eventos);
+        todos.AddRange(destaques);
+        return Json(todos);
+    }
+    
     [HttpPost]
     public async Task<IActionResult> Criar([FromBody] Tarefa tarefa)
     {
@@ -59,30 +103,21 @@ public class TarefasController : Controller
         // Se for recorrente, gera as próximas instâncias
         if (tarefa.Recorrencia != TipoRecorrencia.Nenhuma)
         {
-            var dataFim = tarefa.DataFimRecorrencia;
-            DateTime limite = tarefa.Data.AddMonths(6); // Limite de 6 meses
-            if (dataFim.HasValue && dataFim.Value < limite)
-                limite = dataFim.Value;
+            DateTime limite = tarefa.Data.AddMonths(6);
+            if (tarefa.DataFimRecorrencia.HasValue && tarefa.DataFimRecorrencia.Value < limite)
+                limite = tarefa.DataFimRecorrencia.Value;
 
             DateTime dataAtual = tarefa.Data;
             while (true)
             {
                 switch (tarefa.Recorrencia)
                 {
-                    case TipoRecorrencia.Diaria:
-                        dataAtual = dataAtual.AddDays(1);
-                        break;
-                    case TipoRecorrencia.Semanal:
-                        dataAtual = dataAtual.AddDays(7);
-                        break;
-                    case TipoRecorrencia.Mensal:
-                        dataAtual = dataAtual.AddMonths(1);
-                        break;
+                    case TipoRecorrencia.Diaria: dataAtual = dataAtual.AddDays(1); break;
+                    case TipoRecorrencia.Semanal: dataAtual = dataAtual.AddDays(7); break;
+                    case TipoRecorrencia.Mensal: dataAtual = dataAtual.AddMonths(1); break;
                 }
 
-                // Condição de paragem: nunca passar do limite de 6 meses (ou data de fim, se for antes)
-                if (dataAtual > limite)
-                    break;
+                if (dataAtual > limite) break;
 
                 var novaTarefa = new Tarefa
                 {
@@ -119,7 +154,9 @@ public class TarefasController : Controller
             titulo = tarefa.Titulo,
             descricao = tarefa.Descricao,
             data = tarefa.Data.ToString("yyyy-MM-dd"),
-            categoriaId = tarefa.CategoriaId
+            categoriaId = tarefa.CategoriaId,
+            recorrencia = tarefa.Recorrencia,
+            dataFimRecorrencia = tarefa.DataFimRecorrencia?.ToString("yyyy-MM-dd")
         });
     }
 
@@ -139,6 +176,67 @@ public class TarefasController : Controller
         original.Descricao = tarefa.Descricao;
         original.Data = tarefa.Data;
         original.CategoriaId = tarefa.CategoriaId;
+        original.Recorrencia = tarefa.Recorrencia;
+        original.DataFimRecorrencia = tarefa.DataFimRecorrencia;
+
+        // Adiciona novas instâncias se houver recorrência
+        if (tarefa.Recorrencia != TipoRecorrencia.Nenhuma)
+        {
+            DateTime limite = tarefa.Data.AddMonths(6);
+            if (tarefa.DataFimRecorrencia.HasValue && tarefa.DataFimRecorrencia.Value < limite)
+                limite = tarefa.DataFimRecorrencia.Value;
+
+            DateTime dataAtual = tarefa.Data;
+            while (true)
+            {
+                switch (tarefa.Recorrencia)
+                {
+                    case TipoRecorrencia.Diaria: dataAtual = dataAtual.AddDays(1); break;
+                    case TipoRecorrencia.Semanal: dataAtual = dataAtual.AddDays(7); break;
+                    case TipoRecorrencia.Mensal: dataAtual = dataAtual.AddMonths(1); break;
+                }
+
+                if (dataAtual > limite) break;
+
+                var novaTarefa = new Tarefa
+                {
+                    Titulo = tarefa.Titulo,
+                    Descricao = tarefa.Descricao,
+                    Data = dataAtual,
+                    UtilizadorId = utilizadorId.Value, // CORRIGIDO: vem da sessão
+                    CategoriaId = tarefa.CategoriaId,
+                    Recorrencia = tarefa.Recorrencia,
+                    DataFimRecorrencia = tarefa.DataFimRecorrencia
+                };
+
+                _context.Tarefas.Add(novaTarefa);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditarTodasComTitulo([FromBody] Tarefa tarefa)
+    {
+        var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
+        if (utilizadorId == null) return Unauthorized();
+
+        if (string.IsNullOrEmpty(tarefa.Titulo))
+            return BadRequest("Título obrigatório.");
+
+        var tarefas = await _context.Tarefas
+            .Where(t => t.UtilizadorId == utilizadorId && t.Titulo == tarefa.Titulo)
+            .ToListAsync();
+
+        foreach (var t in tarefas)
+        {
+            t.Descricao = tarefa.Descricao;
+            t.CategoriaId = tarefa.CategoriaId;
+            t.Recorrencia = tarefa.Recorrencia;
+            t.DataFimRecorrencia = tarefa.DataFimRecorrencia;
+        }
 
         await _context.SaveChangesAsync();
         return Ok();
