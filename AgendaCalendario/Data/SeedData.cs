@@ -22,14 +22,16 @@ namespace AgendaCalendario.Data
                         Nome = "Administrador",
                         Email = "admin@teste.com",
                         PasswordHash = HashPassword("admin123"),
-                        PerfilUtilizador = "Admin"
+                        PerfilUtilizador = "Admin",
+                        EmailConfirmado = true
                     },
                     new Utilizador
                     {
                         Nome = "Utilizador Teste",
                         Email = "utilizador@teste.com",
                         PasswordHash = HashPassword("User1234!"),
-                        PerfilUtilizador = "Utilizador"
+                        PerfilUtilizador = "Utilizador",
+                        EmailConfirmado = true
                     }
                 );
 

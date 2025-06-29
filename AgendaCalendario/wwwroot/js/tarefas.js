@@ -123,6 +123,9 @@ function abrirModalEditar(tarefaId) {
             document.getElementById("editTitulo").value = tarefa.titulo;
             document.getElementById("editDescricao").value = tarefa.descricao;
             document.getElementById("editData").value = tarefa.data.split("T")[0];
+            // Esta linha Ã© ESSENCIAL:
+            document.getElementById("editTituloOriginal").value = tarefa.titulo;
+
             document.getElementById("editDataFimRecorrencia").value = tarefa.dataFimRecorrencia?.split("T")[0] || "";
             document.getElementById("divEditDataFimRecorrencia").style.display = tarefa.recorrencia && tarefa.recorrencia !== 0 ? "block" : "none";
             const editRecorrenciaInput = document.getElementById("editRecorrencia");
@@ -334,8 +337,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.getElementById("btnGuardarTodasTarefas").addEventListener("click", () => {
         const tarefa = {
+            tituloOriginal: document.getElementById("editTituloOriginal").value,
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
+            data: document.getElementById("editData").value,
             categoriaId: document.getElementById("editCategoriaId").value || null,
             recorrencia: parseInt(document.getElementById("editRecorrencia").value),
             dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
@@ -350,35 +355,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
                 carregarTarefas(dataSelecionada);
             } else {
-                alert("Erro ao editar todas as tarefas.");
+                showError("Erro ao editar todas as tarefas.");
             }
         });
     });
-
-    document.getElementById("btnGuardarTodasTarefas").addEventListener("click", () => {
-        const tarefa = {
-            titulo: document.getElementById("editTitulo").value,
-            descricao: document.getElementById("editDescricao").value,
-            categoriaId: document.getElementById("editCategoriaId").value || null,
-            recorrencia: parseInt(document.getElementById("editRecorrencia").value),
-            dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
-        };
-        
-
-        fetch("/Tarefas/EditarTodasComTitulo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(tarefa)
-        }).then(res => {
-            if (res.ok) {
-                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
-                carregarTarefas(dataSelecionada);
-            } else {
-                alert("Erro ao editar todas as tarefas.");
-            }
-        });
-    });
-
 
     document.getElementById("formEditarCategoria").addEventListener("submit", function (e) {
         e.preventDefault();

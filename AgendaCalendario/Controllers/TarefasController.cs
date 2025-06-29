@@ -218,24 +218,26 @@ public class TarefasController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> EditarTodasComTitulo([FromBody] Tarefa tarefa)
+    public async Task<IActionResult> EditarTodasComTitulo([FromBody] EditarTodasViewModel tarefa)
     {
         var utilizadorId = HttpContext.Session.GetInt32("UtilizadorId");
         if (utilizadorId == null) return Unauthorized();
 
-        if (string.IsNullOrEmpty(tarefa.Titulo))
+        if (string.IsNullOrEmpty(tarefa.TituloOriginal) || string.IsNullOrEmpty(tarefa.Titulo))
             return BadRequest("Título obrigatório.");
 
         var tarefas = await _context.Tarefas
-            .Where(t => t.UtilizadorId == utilizadorId && t.Titulo == tarefa.Titulo)
+            .Where(t => t.UtilizadorId == utilizadorId && t.Titulo == tarefa.TituloOriginal)
             .ToListAsync();
 
         foreach (var t in tarefas)
         {
+            t.Titulo = tarefa.Titulo;
             t.Descricao = tarefa.Descricao;
             t.CategoriaId = tarefa.CategoriaId;
             t.Recorrencia = tarefa.Recorrencia;
             t.DataFimRecorrencia = tarefa.DataFimRecorrencia;
+            // t.Data = tarefa.Data; // Só se quiseres alterar a data de todas!
         }
 
         await _context.SaveChangesAsync();
@@ -274,4 +276,15 @@ public class TarefasController : Controller
     }
 
 
+}
+
+public class EditarTodasViewModel
+{
+    public string TituloOriginal { get; set; }
+    public string Titulo { get; set; }
+    public string Descricao { get; set; }
+    public DateTime Data { get; set; }
+    public int? CategoriaId { get; set; }
+    public TipoRecorrencia Recorrencia { get; set; }
+    public DateTime? DataFimRecorrencia { get; set; }
 }
