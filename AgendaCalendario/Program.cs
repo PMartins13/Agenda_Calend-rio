@@ -1,15 +1,20 @@
+using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using AgendaCalendario.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ⚙️ Liga o DbContext à connection string definida no appsettings.json
+// Liga o DbContext à connection string definida no appsettings.json
 builder.Services.AddDbContext<AgendaDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Adiciona os controladores com views (MVC).
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
+
+// Adiciona suporte ao Swagger e API Explorer
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -24,12 +29,29 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession();
+app.UseSession(); // A sessão tem de estar disponível antes de usar o middleware que acede à sessão
+
+// Middleware do Swagger só pode aceder à sessão depois de UseSession()
+app.UseMiddleware<AgendaCalendario.Middleware.SwaggerAuthorizationMiddleware>();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AgendaCalendario API V1");
+    c.RoutePrefix = "swagger"; // Acede a partir de /swagger
+});
 
 app.UseAuthorization();
 
+// Garante que os controladores de API são mapeados corretamente
+app.MapControllers();
+
+// Controlador MVC padrão
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// ✅ Inicializa a base de dados com dados de seed
+SeedData.Inicializar(app);
 
 app.Run();
