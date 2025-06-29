@@ -3,6 +3,7 @@ using System;
 using AgendaCalendario.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AgendaCalendario.Migrations
 {
     [DbContext(typeof(AgendaDbContext))]
-    partial class AgendaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250629133343_RelacaoMuitosParaMuitos_TarefasCategorias")]
+    partial class RelacaoMuitosParaMuitos_TarefasCategorias
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
@@ -49,6 +52,9 @@ namespace AgendaCalendario.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CategoriaId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("Data")
                         .HasColumnType("TEXT");
 
@@ -57,6 +63,7 @@ namespace AgendaCalendario.Migrations
 
                     b.Property<string>("Descricao")
                         .IsRequired()
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Recorrencia")
@@ -64,6 +71,7 @@ namespace AgendaCalendario.Migrations
 
                     b.Property<string>("Titulo")
                         .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UtilizadorId")
@@ -71,9 +79,26 @@ namespace AgendaCalendario.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoriaId");
+
                     b.HasIndex("UtilizadorId");
 
                     b.ToTable("Tarefas");
+                });
+
+            modelBuilder.Entity("AgendaCalendario.Models.TarefaCategoria", b =>
+                {
+                    b.Property<int>("TarefaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TarefaId", "CategoriaId");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.ToTable("TarefasCategorias");
                 });
 
             modelBuilder.Entity("AgendaCalendario.Models.Utilizador", b =>
@@ -113,21 +138,6 @@ namespace AgendaCalendario.Migrations
                     b.ToTable("Utilizadores");
                 });
 
-            modelBuilder.Entity("CategoriaTarefa", b =>
-                {
-                    b.Property<int>("CategoriasId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TarefasId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("CategoriasId", "TarefasId");
-
-                    b.HasIndex("TarefasId");
-
-                    b.ToTable("CategoriaTarefa");
-                });
-
             modelBuilder.Entity("AgendaCalendario.Models.Categoria", b =>
                 {
                     b.HasOne("AgendaCalendario.Models.Utilizador", "Utilizador")
@@ -141,28 +151,50 @@ namespace AgendaCalendario.Migrations
 
             modelBuilder.Entity("AgendaCalendario.Models.Tarefa", b =>
                 {
+                    b.HasOne("AgendaCalendario.Models.Categoria", "Categoria")
+                        .WithMany("Tarefas")
+                        .HasForeignKey("CategoriaId");
+
                     b.HasOne("AgendaCalendario.Models.Utilizador", "Utilizador")
                         .WithMany("Tarefas")
                         .HasForeignKey("UtilizadorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Categoria");
+
                     b.Navigation("Utilizador");
                 });
 
-            modelBuilder.Entity("CategoriaTarefa", b =>
+            modelBuilder.Entity("AgendaCalendario.Models.TarefaCategoria", b =>
                 {
-                    b.HasOne("AgendaCalendario.Models.Categoria", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriasId")
+                    b.HasOne("AgendaCalendario.Models.Categoria", "Categoria")
+                        .WithMany("TarefasCategorias")
+                        .HasForeignKey("CategoriaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AgendaCalendario.Models.Tarefa", null)
-                        .WithMany()
-                        .HasForeignKey("TarefasId")
+                    b.HasOne("AgendaCalendario.Models.Tarefa", "Tarefa")
+                        .WithMany("TarefasCategorias")
+                        .HasForeignKey("TarefaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("Tarefa");
+                });
+
+            modelBuilder.Entity("AgendaCalendario.Models.Categoria", b =>
+                {
+                    b.Navigation("Tarefas");
+
+                    b.Navigation("TarefasCategorias");
+                });
+
+            modelBuilder.Entity("AgendaCalendario.Models.Tarefa", b =>
+                {
+                    b.Navigation("TarefasCategorias");
                 });
 
             modelBuilder.Entity("AgendaCalendario.Models.Utilizador", b =>

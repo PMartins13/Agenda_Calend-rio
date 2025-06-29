@@ -4,7 +4,7 @@ using AgendaCalendario.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AgendaCalendario.Controllers
+namespace AgendaCalendario.Controllers.API
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -21,9 +21,12 @@ namespace AgendaCalendario.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tarefa>>> GetTarefas()
         {
-            return await _context.Tarefas.ToListAsync();
+            return await _context.Tarefas
+                .Include(t => t.Categorias)
+                .ToListAsync();
         }
-
+        
+        
         // GET: api/tarefas/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Tarefa>> GetTarefa(int id)
@@ -40,13 +43,19 @@ namespace AgendaCalendario.Controllers
         [HttpPost]
         public async Task<ActionResult<Tarefa>> PostTarefa([FromBody] TarefaCreateDto dto)
         {
+            var categorias = await _context.Categorias
+                .Where(c => dto.CategoriasIds.Contains(c.Id) && c.UtilizadorId == dto.UtilizadorId)
+                .ToListAsync();
+            
             var tarefa = new Tarefa
             {
                 Titulo = dto.Titulo,
                 Descricao = dto.Descricao,
                 Data = dto.Data,
                 UtilizadorId = dto.UtilizadorId,
-                CategoriaId = dto.CategoriaId
+                Recorrencia = dto.Recorrencia,
+                DataFimRecorrencia = dto.DataFimRecorrencia,
+                Categorias = categorias
             };
 
             _context.Tarefas.Add(tarefa);
@@ -59,39 +68,26 @@ namespace AgendaCalendario.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTarefa(int id, [FromBody] TarefaUpdateDto dto)
         {
-            if (id != dto.Id)
-            {
-                return BadRequest();
-            }
+            if (id != dto.Id) return BadRequest();
 
-            var tarefa = await _context.Tarefas.FindAsync(id);
-            if (tarefa == null)
-            {
-                return NotFound();
-            }
+            var tarefa = await _context.Tarefas
+                .Include(t => t.Categorias)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (tarefa == null) return NotFound();
 
             tarefa.Titulo = dto.Titulo;
             tarefa.Descricao = dto.Descricao;
             tarefa.Data = dto.Data;
             tarefa.UtilizadorId = dto.UtilizadorId;
-            tarefa.CategoriaId = dto.CategoriaId;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Tarefas.Any(t => t.Id == id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            tarefa.Categorias.Clear();
+            var novasCategorias = await _context.Categorias
+                .Where(c => dto.CategoriasIds.Contains(c.Id) && c.UtilizadorId == dto.UtilizadorId)
+                .ToListAsync();
+            foreach (var cat in novasCategorias)
+                tarefa.Categorias.Add(cat);
 
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 

@@ -88,11 +88,17 @@ public class CategoriasController : Controller
 
         // Dissociar tarefas antes de apagar a categoria
         var tarefas = await _context.Tarefas
-            .Where(t => t.CategoriaId == id)
+            .Include(t => t.Categorias)
+            .Where(t => t.Categorias.Any(c => c.Id == id))
             .ToListAsync();
 
         foreach (var tarefa in tarefas)
-            tarefa.CategoriaId = null;
+        {
+            var categoriaParaRemover = tarefa.Categorias.FirstOrDefault(c => c.Id == id);
+            if (categoriaParaRemover != null)
+                tarefa.Categorias.Remove(categoriaParaRemover);
+        }
+
 
         _context.Categorias.Remove(categoria);
         await _context.SaveChangesAsync();

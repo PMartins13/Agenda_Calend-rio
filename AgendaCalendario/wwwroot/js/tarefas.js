@@ -20,16 +20,29 @@ function mostrarTarefas(tarefas) {
     const categorias = {};
 
     tarefas.forEach(tarefa => {
-        const catId = tarefa.categoriaId ?? 'null'; // null para "Sem categoria"
-        if (!categorias[catId]) {
-            categorias[catId] = {
-                id: tarefa.categoriaId,
-                nome: tarefa.categoriaNome || 'Sem categoria',
-                cor: tarefa.cor || '#ccc',
-                tarefas: []
-            };
+        tarefa.categorias.forEach(cat => {
+            if (!categorias[cat.id]) {
+                categorias[cat.id] = {
+                    id: cat.id,
+                    nome: cat.nome,
+                    cor: cat.cor,
+                    tarefas: []
+                };
+            }
+            categorias[cat.id].tarefas.push(tarefa);
+        });
+
+        if (!tarefa.categorias.length) {
+            if (!categorias.null) {
+                categorias.null = {
+                    id: null,
+                    nome: 'Sem categoria',
+                    cor: '#ccc',
+                    tarefas: []
+                };
+            }
+            categorias.null.tarefas.push(tarefa);
         }
-        categorias[catId].tarefas.push(tarefa);
     });
 
     for (const [_, info] of Object.entries(categorias)) {
@@ -77,7 +90,7 @@ function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
         .then(res => res.json())
         .then(categorias => {
             const select = document.getElementById(targetSelectId);
-            select.innerHTML = '<option value="">(Sem categoria)</option>';
+            select.innerHTML = '';
 
             categorias.forEach(cat => {
                 const opt = document.createElement("option");
@@ -85,6 +98,9 @@ function carregarCategoriasDropdown(targetSelectId = "categoriaId") {
                 opt.textContent = cat.nome;
                 select.appendChild(opt);
             });
+
+            // torna múltipla
+            select.setAttribute("multiple", true);
         });
 }
 
@@ -137,11 +153,15 @@ function abrirModalEditar(tarefaId) {
             }
             carregarCategoriasDropdown("editCategoriaId");
 
-            setTimeout(() => {
-                document.getElementById("editCategoriaId").value = tarefa.categoriaId ?? "";
-            }, 200);
-
             const modal = new bootstrap.Modal(document.getElementById("modalEditarTarefa"));
+
+            setTimeout(() => {
+                const select = document.getElementById("editCategoriaId");
+                Array.from(select.options).forEach(opt => {
+                    opt.selected = tarefa.categoriasIds.includes(parseInt(opt.value));
+                });
+            }, 200);
+            
             modal.show();
         });
 }
@@ -221,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("titulo").value,
             descricao: document.getElementById("descricao").value,
             data: document.getElementById("data").value,
-            categoriaId: document.getElementById("categoriaId").value || null,
+            categoriasIds: Array.from(document.getElementById("categoriaId").selectedOptions).map(opt => parseInt(opt.value)),
             recorrencia: parseInt(document.getElementById("recorrencia").value),
             dataFimRecorrencia: document.getElementById("dataFimRecorrencia").value || null
         };
@@ -278,7 +298,7 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
             data: document.getElementById("editData").value,
-            categoriaId: document.getElementById("editCategoriaId").value || null,
+            categoriasIds: Array.from(document.getElementById("editCategoriaId").selectedOptions).map(opt => parseInt(opt.value)),
             recorrencia: parseInt(document.getElementById("editRecorrencia").value),
             dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
         };
@@ -341,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
             data: document.getElementById("editData").value,
-            categoriaId: document.getElementById("editCategoriaId").value || null,
+            categoriasIds: Array.from(document.getElementById("editCategoriaId").selectedOptions).map(opt => parseInt(opt.value)),
             recorrencia: parseInt(document.getElementById("editRecorrencia").value),
             dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
         };
