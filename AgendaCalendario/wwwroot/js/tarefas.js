@@ -134,6 +134,25 @@ function abrirModalEditar(tarefaId) {
         });
 }
 
+// Adicione esta função se ainda não existir:
+function showConfirm(message, onConfirm) {
+    $('#confirmModalMessage').text(message);
+    $('#confirmModal').modal('show');
+    $('#confirmModalOk').off('click').on('click', function () {
+        $('#confirmModal').modal('hide');
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    });
+}
+
+// Substitua todos os alert() por showError()
+function showError(message) {
+    $('#successToastMessage').text(message);
+    var toast = new bootstrap.Toast(document.getElementById('successToast'));
+    toast.show();
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     carregarTarefas(dataSelecionada);
     carregarCategoriasLista();
@@ -187,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 bootstrap.Modal.getInstance(document.getElementById("modalTarefa")).hide();
                 carregarTarefas(dataSelecionada);
             } else {
-                alert("Erro ao criar tarefa");
+                showError("Erro ao criar tarefa");
             }
         });
     });
@@ -213,11 +232,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then(res => {
             if (res.ok) {
                 bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
-                alert("Categoria criada com sucesso!");
+                showError("Categoria criada com sucesso!");
                 carregarCategoriasDropdown();
                 carregarCategoriasLista();
             } else {
-                alert("Erro ao criar categoria.");
+                showError("Erro ao criar categoria.");
             }
         });
     });
@@ -242,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
                 carregarTarefas(dataSelecionada);
             } else {
-                alert("Erro ao editar tarefa.");
+                showError("Erro ao editar tarefa.");
             }
         });
     });
@@ -250,38 +269,38 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById("btnApagarTarefa").addEventListener("click", () => {
         const id = document.getElementById("editId").value;
 
-        if (!confirm("Tens a certeza que queres eliminar esta tarefa?")) return;
-
-        fetch("/Tarefas/Apagar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(id)
-        }).then(res => {
-            if (res.ok) {
-                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
-                carregarTarefas(dataSelecionada);
-            } else {
-                alert("Erro ao apagar tarefa.");
-            }
+        showConfirm("Tens a certeza que queres eliminar esta tarefa?", function () {
+            fetch("/Tarefas/Apagar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(id)
+            }).then(res => {
+                if (res.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                    carregarTarefas(dataSelecionada);
+                } else {
+                    showError("Erro ao apagar tarefa.");
+                }
+            });
         });
     });
 
-        document.getElementById("btnApagarTodasTarefas").addEventListener("click", () => {
+    document.getElementById("btnApagarTodasTarefas").addEventListener("click", () => {
         const titulo = document.getElementById("editTitulo").value;
 
-        if (!confirm("Tens a certeza que queres eliminar TODAS as tarefas com este título?")) return;
-
-        fetch("/Tarefas/ApagarTodasComTitulo", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(titulo)
-        }).then(res => {
-            if (res.ok) {
-                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
-                carregarTarefas(dataSelecionada);
-            } else {
-                alert("Erro ao apagar todas as tarefas.");
-            }
+        showConfirm("Tens a certeza que queres eliminar TODAS as tarefas com este título?", function () {
+            fetch("/Tarefas/ApagarTodasComTitulo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(titulo)
+            }).then(res => {
+                if (res.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                    carregarTarefas(dataSelecionada);
+                } else {
+                    showError("Erro ao apagar todas as tarefas.");
+                }
+            });
         });
     });
 
@@ -304,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 carregarCategoriasLista();
                 carregarCategoriasDropdown();
             } else {
-                alert("Erro ao editar categoria.");
+                showError("Erro ao editar categoria.");
             }
         });
     });
@@ -324,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (target.classList.contains("btnApagarCategoria")) {
             const id = target.dataset.id;
 
-            if (confirm("Tens a certeza que queres eliminar esta categoria?")) {
+            showConfirm("Tens a certeza que queres eliminar esta categoria?", function () {
                 fetch("/Categorias/Eliminar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -334,10 +353,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         carregarCategoriasDropdown(); // opcional
                         carregarTarefas(dataSelecionada); // recarregar vista
                     } else {
-                        res.text().then(msg => alert(msg));
+                        res.text().then(msg => showError(msg));
                     }
                 });
-            }
+            });
         }
     });
 

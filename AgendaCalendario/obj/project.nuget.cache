@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "skgh9TAQiGE=",
+  "dgSpecHash": "LyKnK2jzNFo=",
   "success": true,
-  "projectFilePath": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj",
+  "projectFilePath": "C:\\Users\\pedro\\Desktop\\Agenda 3\\Agenda_Calend-rio-main (1)\\Agenda_Calend-rio-main\\AgendaCalendario\\AgendaCalendario.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pedro\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\pedro\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

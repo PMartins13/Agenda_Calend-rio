@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj": {}
+    "C:\\Users\\pedro\\Desktop\\Agenda 3\\Agenda_Calend-rio-main (1)\\Agenda_Calend-rio-main\\AgendaCalendario\\AgendaCalendario.csproj": {}
   },
   "projects": {
-    "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj": {
+    "C:\\Users\\pedro\\Desktop\\Agenda 3\\Agenda_Calend-rio-main (1)\\Agenda_Calend-rio-main\\AgendaCalendario\\AgendaCalendario.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj",
+        "projectUniqueName": "C:\\Users\\pedro\\Desktop\\Agenda 3\\Agenda_Calend-rio-main (1)\\Agenda_Calend-rio-main\\AgendaCalendario\\AgendaCalendario.csproj",
         "projectName": "AgendaCalendario",
-        "projectPath": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\AgendaCalendario.csproj",
+        "projectPath": "C:\\Users\\pedro\\Desktop\\Agenda 3\\Agenda_Calend-rio-main (1)\\Agenda_Calend-rio-main\\AgendaCalendario\\AgendaCalendario.csproj",
         "packagesPath": "C:\\Users\\pedro\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\pedro\\Documents\\GitHub\\Agenda_Calend-rio\\AgendaCalendario\\obj\\",
+        "outputPath": "C:\\Users\\pedro\\Desktop\\Agenda 3\\Agenda_Calend-rio-main (1)\\Agenda_Calend-rio-main\\AgendaCalendario\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pedro\\AppData\\Roaming\\NuGet\\NuGet.Config"
