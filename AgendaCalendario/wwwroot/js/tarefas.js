@@ -123,6 +123,18 @@ function abrirModalEditar(tarefaId) {
             document.getElementById("editTitulo").value = tarefa.titulo;
             document.getElementById("editDescricao").value = tarefa.descricao;
             document.getElementById("editData").value = tarefa.data.split("T")[0];
+            // Esta linha Ã© ESSENCIAL:
+            document.getElementById("editTituloOriginal").value = tarefa.titulo;
+
+            document.getElementById("editDataFimRecorrencia").value = tarefa.dataFimRecorrencia?.split("T")[0] || "";
+            document.getElementById("divEditDataFimRecorrencia").style.display = tarefa.recorrencia && tarefa.recorrencia !== 0 ? "block" : "none";
+            const editRecorrenciaInput = document.getElementById("editRecorrencia");
+            if (editRecorrenciaInput) {
+                editRecorrenciaInput.addEventListener("change", function () {
+                    const divFim = document.getElementById("divEditDataFimRecorrencia");
+                    divFim.style.display = this.value === "0" ? "none" : "block";
+                });
+            }
             carregarCategoriasDropdown("editCategoriaId");
 
             setTimeout(() => {
@@ -134,18 +146,54 @@ function abrirModalEditar(tarefaId) {
         });
 }
 
+// Adicione esta função se ainda não existir:
+function showConfirm(message, onConfirm) {
+    $('#confirmModalMessage').text(message);
+    $('#confirmModal').modal('show');
+    $('#confirmModalOk').off('click').on('click', function () {
+        $('#confirmModal').modal('hide');
+        if (typeof onConfirm === 'function') {
+            onConfirm();
+        }
+    });
+}
+
+// Substitua todos os alert() por showError()
+function showError(message) {
+    $('#successToastMessage').text(message);
+    var toast = new bootstrap.Toast(document.getElementById('successToast'));
+    toast.show();
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     carregarTarefas(dataSelecionada);
     carregarCategoriasLista();
 
+    document.getElementById("recorrencia").addEventListener("change", function () {
+        const divFim = document.getElementById("divDataFimRecorrencia");
+        divFim.style.display = this.value === "0" ? "none" : "block";
+    });
+
     const calendarEl = document.getElementById('calendar');
-    const calendar = new FullCalendar.Calendar(calendarEl, {
+    let calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         locale: 'pt',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: ''
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            const inicio = fetchInfo.startStr.split("T")[0]; // só a parte yyyy-MM-dd
+            const fim = fetchInfo.endStr.split("T")[0];
+
+            fetch(`/Tarefas/PorIntervalo?inicio=${inicio}&fim=${fim}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erro ao buscar dados.");
+                    return response.json();
+                })
+                .then(data => successCallback(data))
+                .catch(() => failureCallback());
         },
         dateClick: function (info) {
             dataSelecionada = info.dateStr;
@@ -187,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 bootstrap.Modal.getInstance(document.getElementById("modalTarefa")).hide();
                 carregarTarefas(dataSelecionada);
             } else {
-                alert("Erro ao criar tarefa");
+                showError("Erro ao criar tarefa");
             }
         });
     });
@@ -213,11 +261,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }).then(res => {
             if (res.ok) {
                 bootstrap.Modal.getInstance(document.getElementById("modalCategoria")).hide();
-                alert("Categoria criada com sucesso!");
+                showError("Categoria criada com sucesso!");
                 carregarCategoriasDropdown();
                 carregarCategoriasLista();
             } else {
-                alert("Erro ao criar categoria.");
+                showError("Erro ao criar categoria.");
             }
         });
     });
@@ -230,7 +278,9 @@ document.addEventListener('DOMContentLoaded', function () {
             titulo: document.getElementById("editTitulo").value,
             descricao: document.getElementById("editDescricao").value,
             data: document.getElementById("editData").value,
-            categoriaId: document.getElementById("editCategoriaId").value || null
+            categoriaId: document.getElementById("editCategoriaId").value || null,
+            recorrencia: parseInt(document.getElementById("editRecorrencia").value),
+            dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
         };
 
         fetch("/Tarefas/Editar", {
@@ -242,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
                 carregarTarefas(dataSelecionada);
             } else {
-                alert("Erro ao editar tarefa.");
+                showError("Erro ao editar tarefa.");
             }
         });
     });
@@ -250,37 +300,62 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById("btnApagarTarefa").addEventListener("click", () => {
         const id = document.getElementById("editId").value;
 
-        if (!confirm("Tens a certeza que queres eliminar esta tarefa?")) return;
-
-        fetch("/Tarefas/Apagar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(id)
-        }).then(res => {
-            if (res.ok) {
-                bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
-                carregarTarefas(dataSelecionada);
-            } else {
-                alert("Erro ao apagar tarefa.");
-            }
+        showConfirm("Tens a certeza que queres eliminar esta tarefa?", function () {
+            fetch("/Tarefas/Apagar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(id)
+            }).then(res => {
+                if (res.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                    carregarTarefas(dataSelecionada);
+                } else {
+                    showError("Erro ao apagar tarefa.");
+                }
+            });
         });
     });
 
-        document.getElementById("btnApagarTodasTarefas").addEventListener("click", () => {
+    document.getElementById("btnApagarTodasTarefas").addEventListener("click", () => {
         const titulo = document.getElementById("editTitulo").value;
 
-        if (!confirm("Tens a certeza que queres eliminar TODAS as tarefas com este título?")) return;
+        showConfirm("Tens a certeza que queres eliminar TODAS as tarefas com este título?", function () {
+            fetch("/Tarefas/ApagarTodasComTitulo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(titulo)
+            }).then(res => {
+                if (res.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
+                    carregarTarefas(dataSelecionada);
+                } else {
+                    showError("Erro ao apagar todas as tarefas.");
+                }
+            });
+        });
+    });
 
-        fetch("/Tarefas/ApagarTodasComTitulo", {
+    document.getElementById("btnGuardarTodasTarefas").addEventListener("click", () => {
+        const tarefa = {
+            tituloOriginal: document.getElementById("editTituloOriginal").value,
+            titulo: document.getElementById("editTitulo").value,
+            descricao: document.getElementById("editDescricao").value,
+            data: document.getElementById("editData").value,
+            categoriaId: document.getElementById("editCategoriaId").value || null,
+            recorrencia: parseInt(document.getElementById("editRecorrencia").value),
+            dataFimRecorrencia: document.getElementById("editDataFimRecorrencia").value || null
+        };
+
+        fetch("/Tarefas/EditarTodasComTitulo", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(titulo)
+            body: JSON.stringify(tarefa)
         }).then(res => {
             if (res.ok) {
                 bootstrap.Modal.getInstance(document.getElementById("modalEditarTarefa")).hide();
                 carregarTarefas(dataSelecionada);
             } else {
-                alert("Erro ao apagar todas as tarefas.");
+                showError("Erro ao editar todas as tarefas.");
             }
         });
     });
@@ -304,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 carregarCategoriasLista();
                 carregarCategoriasDropdown();
             } else {
-                alert("Erro ao editar categoria.");
+                showError("Erro ao editar categoria.");
             }
         });
     });
@@ -324,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (target.classList.contains("btnApagarCategoria")) {
             const id = target.dataset.id;
 
-            if (confirm("Tens a certeza que queres eliminar esta categoria?")) {
+            showConfirm("Tens a certeza que queres eliminar esta categoria?", function () {
                 fetch("/Categorias/Eliminar", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -334,10 +409,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         carregarCategoriasDropdown(); // opcional
                         carregarTarefas(dataSelecionada); // recarregar vista
                     } else {
-                        res.text().then(msg => alert(msg));
+                        res.text().then(msg => showError(msg));
                     }
                 });
-            }
+            });
         }
     });
 

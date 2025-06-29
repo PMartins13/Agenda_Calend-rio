@@ -172,7 +172,7 @@ namespace AgendaCalendario.Controllers
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(input);
             var hash = sha.ComputeHash(bytes);
-            return BitConverter.ToString(hash).Replace("-", "").ToLower(); // igual ao SeedData
+            return BitConverter.ToString(hash).Replace("-", "").ToLower(); // gual ao SeedData
         }
 
         [HttpPost]
